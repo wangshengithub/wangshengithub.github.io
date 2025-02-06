@@ -1,0 +1,299 @@
+body {
+    background-color: #181818;
+    font-family: Arial, sans-serif;
+    touch-action: manipulation;
+    margin: 0;
+    padding: 0;
+    font-family: 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+button {
+    background-color: #444;
+    border: 2px solid #bbb;
+    margin: 5px;
+    color: #ddd;
+    cursor: pointer;
+}
+
+canvas {
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: block;
+	z-index: 1;
+}
+
+img {
+    image-rendering: pixelated;
+}
+
+p, h2 {
+    margin: 5px;
+    color: #ddd;
+    font-family: 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+a { color: #295be7; }
+a:visited { color: #6b29d7; }
+
+table {
+    color: white;
+}
+
+td {
+    border-left: 2px solid #444;
+    padding-left: 5px;
+}
+
+select {
+    background-color: #444;
+    border: 2px solid #bbb;
+    margin: 5px;
+    color: #ddd;
+    cursor: pointer;
+}
+
+input {
+    background-color: #444;
+    border: 2px solid #bbb;
+    margin: 5px;
+    color: #ddd;
+    width: 60px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.unlockButton {
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 10px;
+    vertical-align: top;
+    position: relative;
+    z-index: 2;
+}
+
+/*Mining tab*/
+
+#miningTab {
+    display: inline-block;
+    vertical-align: top;
+    position: relative;
+    background-color: #222;
+    width: 400px;
+    min-height: 100px;
+    margin-top: 10px;
+    margin-left: 10px;
+    border: 2px solid #bbb;
+    z-index: 2;
+}
+
+#miningProgressBar {
+    position: relative;
+    margin: 5px;
+    background-color: black;
+}
+
+#miningProgressBarInner {
+    position: absolute;
+    background-color: #0a0;
+    height: 100%;
+    z-index: 1;
+}
+
+#drillSpeedupButton {
+    margin-bottom: 10px;
+    background-color: #036;
+    padding: 5px;
+    transition: background-color 0.5s;
+    user-select: none;
+}
+
+#drillUpgradesGrid {
+    margin: 5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 5px;
+}
+
+/*Smeltery tab*/
+
+#smelteryTab {
+    display: none;
+    vertical-align: top;
+    position: relative;
+    background-color: #222;
+    width: 450px;
+    min-height: 100px;
+    margin-top: 10px;
+    margin-left: 10px;
+    border: 2px solid #bbb;
+    z-index: 2;
+}
+
+#smelteryGrid {
+    margin: 5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 5px;
+}
+
+.autoSmeltingButton {
+    margin-left: 0;
+}
+
+.smeltingProgressBar {
+    position: relative;
+    margin: 5px;
+    background-color: black;
+    height: 20px;
+}
+
+.smeltingProgressBarInner {
+    position: absolute;
+    background-color: #0df;
+    height: 100%;
+    z-index: 1;
+}
+
+/*Gems tab*/
+
+#gemsTab {
+    display: none;
+    vertical-align: top;
+    position: relative;
+    background-color: #222;
+    width: 400px;
+    min-height: 100px;
+    margin-top: 10px;
+    margin-left: 10px;
+    border: 2px solid #bbb;
+    z-index: 2;
+}
+
+#breakingProgressBar {
+    position: relative;
+    margin: 5px;
+    margin-top: 15px;
+    background-color: black;
+}
+
+#breakingProgressBarInner {
+    position: absolute;
+    background-color: #0aa;
+    height: 100%;
+    z-index: 1;
+}
+
+#breakStoneButton {
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+/*Mana tab*/
+
+#manaTab {
+    display: none;
+    vertical-align: top;
+    position: relative;
+    background-color: #222;
+    width: 500px;
+    min-height: 100px;
+    margin-top: 10px;
+    margin-left: 10px;
+    border: 2px solid #9cd;
+    z-index: 2;
+}
+
+#manaResetButton {
+    display: block;
+    margin: auto;
+    width: 375px;
+    height: 40px;
+    font-size: 16px;
+    margin-top: 20px;
+    border: 2px solid #9cd;
+}
+
+#mysticalRocksGrid {
+    margin: 5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 5px;
+}
+
+.mysticalRock {
+    background-color: #444;
+    text-align: center;
+}
+
+.mysticalRockButton {
+    width: 92%;
+    margin: 4%;
+    height: 32px;
+    margin-top: 0;
+}
+
+.mysticalRockCustomInput {
+    width: 70%;
+    display: inline-block;
+    margin-top: 0;
+    border-top: 0;
+}
+
+/*Settings tab*/
+
+#settingsTab {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #222;
+    background-image: url('img/circuit.png');
+    background-size: 500px 500px;
+    width: 260px;
+    height: 180px;
+    border: 2px solid #bbb;
+    z-index: 2;
+}
+
+#settingsTabMinimize {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: #222;
+    border: 2px solid #bbb;
+    width: 25px;
+    height: 25px;
+    z-index: 3;
+    cursor: pointer;
+    user-select: none;
+}
+
+/*Ores tab*/
+
+#oresTab {
+    position: fixed;
+    top: 200px;
+    right: 10px;
+    background-color: #222;
+    background-image: url('img/circuit.png');
+    background-size: 500px 500px;
+    width: 260px;
+    min-height: 100px;
+    max-height: calc(100% - 210px);
+    border: 2px solid #bbb;
+    z-index: 2;
+    overflow-y: auto;
+}
+
+#oresTabMinimize {
+    position: fixed;
+    top: 200px;
+    right: 10px;
+    background-color: #222;
+    border: 2px solid #bbb;
+    width: 25px;
+    height: 25px;
+    z-index: 3;
+    cursor: pointer;
+    user-select: none;
+}

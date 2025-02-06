@@ -1,0 +1,100 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #6c7ae0;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    background-color: #444;
+    padding: 1em 0;
+}
+
+.game-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.game-list li {
+    display: inline;
+    margin: 0 15px;
+}
+
+.game-list a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2em;
+    transition: all 0.3s ease;
+}
+
+.game-list a:hover {
+    text-decoration: underline;
+    transform: scale(1.1);
+}
+
+main {
+    padding: 2em;
+}
+
+.featured-game {
+    text-align: center;
+}
+
+.game-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.game-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.game-card h3 {
+    margin-top: 10px;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.game-card p {
+    font-size: 1em;
+    color: #666;
+}
+
+.play-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #6c7ae0;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.play-button:hover {
+    background-color: #5b69e3;
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1em 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
