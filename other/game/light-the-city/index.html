@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>点亮城市！ - Light the City!</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="break_infinity.js"></script>
+  </head>  
+  <body id="body">
+<script src="chs.js?07071443"></script>
+<script src="core.js"></script>
+    <div class="prototyping-table" style="grid-template-columns: 3fr 2fr 5fr; grid-template-rows: 1fr 5fr 5fr 1fr; min-width: 1400px; min-height: 720px">
+      <div style="grid-column: 1; grid-row: 1; display: flex; flex-direction: row; align-items: center">
+        <img src="img/electricity.png" style="height: 60%; margin-right: 1em"/>
+        <p class="big-number" style="color: #fcf300"><span class="variable-value" name="energy" rounded fixed>0</span><span id="progression_tag_hidden_0" style="visibility: hidden"> / <span id="energy_limit"></span></span></p>
+      </div>
+      <div id="progression_tag_hidden_1" style="grid-column: 2; grid-row: 1; display: flex; flex-direction: row; align-items: center; visibility: hidden">
+        <img src="img/48/money.png" style="height: 60%; margin-right: 1em"/>
+        <p class="variable-value big-number" style="color: #32cd32" name="money" fixed></p>
+      </div>
+      <div id="progression_tag_hidden_2" style="grid-column: 3; grid-row: 1; display: flex; flex-direction: row; align-items: center; font-size: 0.95em; visibility: hidden">
+        <button style="height: 50%; margin-right: 1em" onclick="sell_energy()">
+            Sell
+        </button>
+        <img src="img/electricity.png" style="height: 60%"/>
+        <input id="selling_stack" type="text" style="font-size: 1.3em; width: 5em;" value="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+        <button style="height: 50%; margin-left: 0.5em; margin-right: 0.5em" onclick="document.getElementById('selling_stack').value = format_number(player.energy.div(2).round())">
+            50%
+        </button>
+        <button style="height: 50%; margin-right: 1em" onclick="document.getElementById('selling_stack').value = format_number(player.energy.round())">
+            100%
+        </button>
+        <p style="margin-right: 1em">for</p>
+        <img src="img/48/money.png" style="height: 60%; margin-right: 0.5em"/>
+        <p id="money_from_selling_stack" style="color: #32cd32; font-size: 1.2em; margin-right: 1em"></p>
+        <p style="font-size: 1.2em;">(<span id="money_from_selling_one" style="color: #32cd32;"></span>/</p>
+        <img src="img/electricity.png" style="height: 1em"/>
+        <p style="font-size: 1.2em;">)</p>
+      </div>
+      <div style="grid-column: 1 / 3; grid-row: 2 / 4; display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr 15fr; gap: 0.6em">
+          <div style="grid-column: 1; grid-row: 1; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: 1fr; font-size: 0.8em; gap: 0.4em">
+            <button class="tab-button" id="tab_btn_power" onclick="switch_tab('power')" style="visibility: hidden" disabled>Power</button>
+            <button class="tab-button" id="tab_btn_upgrades" onclick="switch_tab('upgrades')" style="visibility: hidden">Upgrades</button>
+            <button class="tab-button" id="tab_btn_storage" onclick="switch_tab('storage')" style="visibility: hidden">Storage</button>
+            <button class="tab-button" id="tab_btn_research" onclick="switch_tab('research')" style="visibility: hidden">Research</button>
+            <button class="tab-button" id="tab_btn_alternate" onclick="switch_tab('alternate')" style="visibility: hidden">Alternate</button>
+            <button class="tab-button" id="tab_btn_starship" onclick="switch_tab('starship')" style="visibility: hidden">Starship</button>
+          </div>
+          
+          <div class="tab" id="tab_power">
+            <div style="grid-column: 1; grid-row: 1; display: grid; grid-template-columns: 2fr 2fr 1fr 2fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em;">
+              <img src="img/work--v1.png"  style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2 / 4; grid-row: 1; text-align: left; font-size: 1.4em">Crank</p>
+              <p style="grid-column: 2 / 4; grid-row: 2; text-align: left; font-size: 0.8em">Generates <img src="img/electricity.png" class="inline-icon"/><span id="crank_income" style="color: #fcf300">1</span> per cycle</p>
+              <button style="grid-column: 2; grid-row: 3; text-align: center; font-size: 0.8em; background-color: var(--color-300); position: relative; display: flex; justify-content: center; align-items: center; cursor: pointer" onclick="player.crank_active=!player.crank_active">
+                <div id="crank_progress" style="position: absolute; left: 0; top: 0; bottom: 0; right: 100%; background-color: var(--color-500);"></div>
+                <p style="position: absolute; left: 0; right: 0;" id="crank" >Turn the crank</p>
+              </button>
+              <p id="crank_progress_left" style="grid-column: 3; grid-row: 3; text-align: left; font-size: 0.8em; align-self: center">5.000 s</p>
+              <div style="grid-column: 4; grid-row: 1 / 4; display: grid; grid-template-rows: 1fr 1fr; gap: 0.4em">
+                <button class="upgrade" id="upg-crank1" style="font-size: 0.8em; display: none">
+                  +1 base energy/cycle
+                  <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+                </button>
+                <button class="upgrade" id="upg-crank2" style="font-size: 0.8em; display: none">
+                  Turn 20% faster
+                  <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+                </button>
+              </div>
+            </div>
+            
+            <div id="coal_plant" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em; display: none">
+              <img src="img/manufacturing.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2 / 4; grid-row: 1; text-align: left; font-size: 1.4em">Coal Power Plant</p>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/metal.png" class="inline-icon"/><span style="color: var(--color-metal)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" class="inline-icon"/><span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <p style="grid-column: 3; grid-row: 2; text-align: left; font-size: 0.8em">+<img src="img/electricity.png" class="inline-icon"/><span class="effect-value" style="color: var(--color-energy)"></span>/s, -<img src="img/mine-cart.png" class="inline-icon"/><span id="coal_pp_consumption" style="color: var(--color-coal)"></span>/s</p>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <div style="grid-column: 3; grid-row: 3; text-align: left; font-size: 0.8em; display: grid; grid-template-rows: 1fr; grid-template-columns: 3fr 4fr; align-items: center;">
+                <p style="margin-right: 1em;">Owned: <span class="amount"></span></p>
+                <button id="coal_switch" style="width: 80%;" onclick="player.plants_working['coal'] = !player.plants_working['coal']">Turn off</button>
+              </div>
+              <img class="progression-tag-hidden-11" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-11" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('coal_plant')">-</button>
+                <p class="variable-value" name="engineers" index="coal_plant" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('coal_plant')">+</button>
+              </div>
+              <p class="progression-tag-hidden-11 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+            
+            <div id="oil_plant" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em; display: none">
+              <img src="img/oil-storage-tank.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2 / 4; grid-row: 1; text-align: left; font-size: 1.4em">Oil Power Plant</p>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/metal.png" class="inline-icon"/><span style="color: var(--color-metal)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" class="inline-icon"/><span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <p style="grid-column: 3; grid-row: 2; text-align: left; font-size: 0.8em">+<img src="img/electricity.png" class="inline-icon"/><span class="effect-value" style="color: var(--color-energy)"></span>/s, -<img src="img/oil-industry.png" class="inline-icon"/><span id="oil_pp_consumption" style="color: var(--color-oil)"></span>/s</p>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <div style="grid-column: 3; grid-row: 3; text-align: left; font-size: 0.8em; display: grid; grid-template-rows: 1fr; grid-template-columns: 3fr 4fr; align-items: center;">
+                <p style="margin-right: 1em;">Owned: <span class="amount"></span></p>
+                <button id="oil_switch" style="width: 80%;" onclick="player.plants_working['oil'] = !player.plants_working['oil']">Turn off</button>
+              </div>
+              <img class="progression-tag-hidden-11" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-11" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('oil_plant')">-</button>
+                <p class="variable-value" name="engineers" index="oil_plant" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('oil_plant')">+</button>
+              </div>
+              <p class="progression-tag-hidden-11 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+            
+            <div id="nuclear_plant" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em; display: none">
+              <img src="img/nuclear-power-plant.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2 / 4; grid-row: 1; text-align: left; font-size: 1.4em">Nuclear Power Plant</p>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/processor.png" class="inline-icon"/><span style="color: var(--color-electronics)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" class="inline-icon"/><span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <p style="grid-column: 3; grid-row: 2; text-align: left; font-size: 0.8em">+<img src="img/electricity.png" class="inline-icon"/><span class="effect-value" style="color: var(--color-energy)"></span>/s, -<img src="img/radio-active.png" class="inline-icon"/><span id="nuclear_pp_consumption" style="color: var(--color-uranium)"></span>/s</p>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <div style="grid-column: 3; grid-row: 3; text-align: left; font-size: 0.8em; display: grid; grid-template-rows: 1fr; grid-template-columns: 3fr 4fr; align-items: center;">
+                <p style="margin-right: 1em;">Owned: <span class="amount"></span></p>
+                <button id="nuclear_switch" style="width: 80%;" onclick="player.plants_working['nuclear'] = !player.plants_working['nuclear']">Turn off</button>
+              </div>
+              <img class="progression-tag-hidden-11" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-11" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('nuclear_plant')">-</button>
+                <p class="variable-value" name="engineers" index="nuclear_plant" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('nuclear_plant')">+</button>
+              </div>
+              <p class="progression-tag-hidden-11 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+              <div id="progression_tag_hidden_7" style="grid-column: 1; grid-row: 5; visibility: hidden; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1fr 3fr; align-items: center; font-size: 0.85em;">
+                <p style="grid-row: 1; grid-column: 1; padding-left: 1em">Autobuy</p>
+                <button id="smart_autobuy" style="grid-row: 1; grid-column: 2 / 4; justify-self: flex-start" onclick="player.smart_autobuy = !player.smart_autobuy">
+                  Disable buying if unprofitable
+                </button>
+                <p style="grid-row: 1; grid-column: 4; padding-left: 1em">Autosell</p>
+                <div style="grid-column: 1; grid-row: 2; justify-self: center; height: 3em; display: flex; flex-direction: row">
+                  <img src="img/mine-cart.png" style="height: 100%; margin-right: 1em"/>
+                  <div id="engineer_coal" style="cursor: pointer" onclick="switch_engineer('coal')">
+                    <img class="on-job" src="img/engineer.png" style="height: 3em; display: none"/>
+                    <img class="not-on-job" src="img/64/engineer.png" style="height: 3em; filter: invert(1)"/>
+                  </div>
+                </div>
+                <div id="autobuy_oil" style="grid-column: 2; grid-row: 2; justify-self: center; height: 3em; display: flex; flex-direction: row; visibility: hidden">
+                  <img src="img/oil-industry.png" style="height: 100%; margin-right: 1em"/>
+                  <div id="engineer_oil" style="cursor: pointer" onclick="switch_engineer('oil')">
+                    <img class="on-job" src="img/engineer.png" style="height: 3em; display: none"/>
+                    <img class="not-on-job" src="img/64/engineer.png" style="height: 3em; filter: invert(1)"/>
+                  </div>
+                </div>
+                <div id="autobuy_uranium" style="grid-column: 3; grid-row: 2; justify-self: center; height: 3em; display: flex; flex-direction: row; visibility: hidden">
+                  <img src="img/radio-active.png" style="height: 100%; margin-right: 1em"/>
+                  <div id="engineer_uranium" style="cursor: pointer" onclick="switch_engineer('uranium')">
+                    <img class="on-job" src="img/engineer.png" style="height: 3em; display: none"/>
+                    <img class="not-on-job" src="img/64/engineer.png" style="height: 3em; filter: invert(1)"/>
+                  </div>
+                </div>
+                <div style="grid-column: 4; grid-row: 2; justify-self: center; height: 3em; display: flex; flex-direction: row">
+                  <img src="img/electricity.png" style="height: 100%; margin-right: 1em"/>
+                  <div id="engineer_energy" style="cursor: pointer" onclick="switch_engineer('energy')">
+                    <img class="on-job" src="img/engineer.png" style="height: 3em; display: none"/>
+                    <img class="not-on-job" src="img/64/engineer.png" style="height: 3em; filter: invert(1)"/>
+                  </div>
+                </div>
+              </div>
+          </div>
+          
+          <div class="tab" id="tab_upgrades" style="display: none; grid-template-columns: 1fr 1fr">
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u1">
+              Crank starts a new cycle automatically<br>once turned<br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u2">
+              You can store <img src="img/electricity.png" class="inline-icon"/><span class="effect-value" style="color: #fcf300"></span> more<br><br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u3">
+              Unlock an advanced energy storage method<br><br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u4">
+              Crank is twice more powerful<br><br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u5">
+              Unlock the resource market<br>and more advanced buildings<br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u6">
+              You can store <img src="img/electricity.png" class="inline-icon"/><span class="effect-value" style="color: #fcf300"></span> more<br><br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u7">
+              Start lighting up the nearby <span class="town-or-city">town</span><br><br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u8">
+              Automatically sell <span class="effect-value"></span>%<br>of energy overflow<br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u9">
+              Your engineers can now automatically<br>buy or sell resources (check the Power tab)<br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+            <button class="upgrade" style="font-size: 0.8em" id="upg-u10">
+              Unlock the research facilities<br><br>
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value"></span></span>
+            </button>
+          </div>
+          
+          <div class="tab" id="tab_storage" style="display: none">
+            <div id="battery" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em;">
+              <img src="img/high-battery.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2 / 4; grid-row: 1; text-align: left; font-size: 1.4em">Battery</p>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/48/money.png" style="height: 0.8em"/> <span style="color: var(--color-money)" class="cost-value"></span></p>
+              <p style="grid-column: 3; grid-row: 2; text-align: left; font-size: 0.8em">Stores <img src="img/electricity.png" style="height: 0.8em"/> <span class="effect-value" style="color: #fcf300"></span></p>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <p style="grid-column: 3; grid-row: 3; text-align: left; font-size: 0.8em; align-self: center">Owned: <span class="amount"></span></p>
+              <img class="progression-tag-hidden-11" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-11" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('battery')">-</button>
+                <p class="variable-value" name="engineers" index="battery" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('battery')">+</button>
+              </div>
+              <p class="progression-tag-hidden-11 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+            <div id="accumulator" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em;">
+              <img src="img/car-battery.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2 / 4; grid-row: 1; text-align: left; font-size: 1.4em">Accumulator</p>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/metal.png" style="height: 0.8em"/> <span style="color: var(--color-metal)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" style="height: 0.8em"/> <span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <p style="grid-column: 3; grid-row: 2; text-align: left; font-size: 0.8em">Stores <img src="img/electricity.png" style="height: 0.8em"/> <span class="effect-value" style="color: #fcf300"></span></p>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <p style="grid-column: 3; grid-row: 3; text-align: left; font-size: 0.8em; align-self: center">Owned: <span class="amount"></span></p>
+              <img class="progression-tag-hidden-11" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-11" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('accumulator')">-</button>
+                <p class="variable-value" name="engineers" index="accumulator" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('accumulator')">+</button>
+              </div>
+              <p class="progression-tag-hidden-11 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+            <div id="substation" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em;">
+              <img src="img/ac-dc-converter.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2 / 4; grid-row: 1; text-align: left; font-size: 1.4em">Substation</p>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/processor.png" style="height: 0.8em"/> <span style="color: var(--color-electronics)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" style="height: 0.8em"/> <span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <p style="grid-column: 3; grid-row: 2; text-align: left; font-size: 0.8em">Stores <img src="img/electricity.png" style="height: 0.8em"/> <span class="effect-value" style="color: #fcf300"></span></p>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <p style="grid-column: 3; grid-row: 3; text-align: left; font-size: 0.8em; align-self: center">Owned: <span class="amount"></span></p>
+              <img class="progression-tag-hidden-11" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-11" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('substation')">-</button>
+                <p class="variable-value" name="engineers" index="substation" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('substation')">+</button>
+              </div>
+              <p class="progression-tag-hidden-11 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+          </div>
+        
+          <div class="tab" id="tab_research" style="display: none;">
+            <div id="laboratory" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em;">
+              <img src="img/microscope.png" style="grid-column: 1; grid-row: 1 / 4; height: 80%; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2; grid-row: 1; text-align: left; font-size: 1.4em">Laboratory</p>
+              <div style="grid-column: 3; grid-row: 1; text-align: left; font-size: 1.4em; display: flex; flex-direction: row; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="variable-value" name="research" style="color: var(--color-science)" fixed></p>
+              </div>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/metal.png" class="inline-icon"/><span style="color: var(--color-metal)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" class="inline-icon"/><span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <p style="grid-column: 3; grid-row: 2 / 4; text-align: left; font-size: 0.8em">+<img src="img/test-tube.png" class="inline-icon"/><span class="effect-value" style="color: var(--color-science)" fixed></span>/s, -<img src="img/electricity.png" class="inline-icon"/><span id="lab_consumption" style="color: var(--color-energy)"></span>/s<br> if manned by engineer</p>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <img src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('laboratory')">-</button>
+                <p class="variable-value" name="engineers" index="laboratory" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('laboratory')">+</button>
+              </div>
+              <p style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; font-size: 0.8em">Owned: <span class="amount"></span></p>
+            </div>
+            <button id="res-1" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The coal can be crushed before feeding into a power plant.<br>
+                By doing so, we can decrease the coal consumption of coal power plants by <span class="effect-value"></span>%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-2" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                With more people, there are more ideas.<br>
+                By listening to them, we can increase lab effectiveness by <span class="effect-value"></span>% for each person living in the <span class="town-or-city">town</span>.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The improvements in material quality can allow our base energy storage
+                to be <span class="effect-value"></span> times higher.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-smart" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The current trading protocols of our engineers in importing department are a bit incomplete.<br>
+                Amend the protocols to allow them to stop buying resources when this would result in a net loss 
+                (this can be toggled on or off in Power tab).
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-4" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Oil is a cheap and very flammable substance suitable for energy generation.<br>
+                We can design power plants that use it as fuel.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-5" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The extra trading contracts can allow us to sell up to <span class="effect-value"></span>%
+                of overflow energy even without a dedicated engineer.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-6" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Engineers work better together.<br>
+                This would increase lab effectiveness by <span class="effect-value"></span>%
+                for each engineer past the first, but also raise the energy consumption
+                by the same amount.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-7" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Oil is suddenly very expensive.<br>
+                We can minimize the resource waste and reduce the oil consumption by <span class="effect-value"></span>%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-8" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Alkaline batteries seem to be a major breakthrough in the field of energy storage.<br>
+                By replacing our batteries with the new ones, we can increase their capacity by <span class="effect-value"></span> times.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-9" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The best tweaks can only be made in the field.<br>
+                We can assign engineers to oversee power plant and storage operations, 
+                which would increase their effectiveness by <span class="effect-value"></span>% per engineer.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-17" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Invest in an establishment of a local stock exchange.<br>
+                This would cause more people to enter the market, which would cause
+                your own actions to eventually have less effect on resource prices with time.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-10" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The emergence of an energy futures market allows us to sell up to <span class="effect-value"></span>%
+                of overflow energy even without a dedicated engineer.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-11" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The computational power seems to be extremely important in the coming era.<br>
+                Establish a study dedicated to electronic components and the possibilities they open.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-12" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                We can establish the Daylight Saving Time to maximize the usage of solar light by the <span class="town-or-city">town</span> population.<br>
+                Doing so will reduce their energy needs by <span class="effect-value"></span>%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-lab3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                With our new advances in electronics, we can create an efficient storage for all our scientific knowledge.<br>
+                This would double lab effectiveness, but increase their energy requirements by 50%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-14" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                A recent study uncovered an interesting phenomenon called "radioactivity".<br>
+                Learn how to harness this new power and make it produce energy.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-storage3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                By double-layering all our accumulators, we can raise their capacity
+                by a staggering <span class="effect-value"></span> times.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-16" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                We can streamline the operations of our coal power plants, making them more effective.<br>
+                This would cause coal power plants to produce <span class="effect-value"></span>% more energy
+                per each coal power plant constructed. 
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-autosell3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The development of easy-to-use trading strategies can greatly aid our sales department and allow them to sell <span class="effect-value"></span>%
+                of overflow energy even without a dedicated engineer.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-savings2" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                We can lobby the switch to centralized heating to have more control over energy used to heat the homes.<br>
+                By cutting off unnecessary heating times, we can reduce energy requirements of citizens by <span class="effect-value"></span>%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-15" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                We can develop a more compact design of a nuclear power plant.<br>
+                That would allow us to fit two cores into one building, thus increasing base energy output by <span class="effect-value"></span>
+                and base Uranium consumption by 0.075.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-lab4" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The additional citations between the research papers of our lab engineers
+                would boost our perceived science production rate by <span class="effect-value"></span>% per manned laboratory.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-scale2" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                We can make distribution of oil to our various factories more centralized.<br>
+                By doing so, oil power plant effectiveness would rise by <span class="effect-value"></span>%
+                per each oil power plant constructed. 
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-autosell4" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The improvements in computing efficiency opened the road for high-frequency trading algorithms.<br>
+                The development of one of our own will allow us to sell up to <span class="effect-value"></span>%
+                of overflow energy without an engineer supervisor.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-18" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                By packing the reactors in a nuclear power plant even closer to each other,
+                we can fit even more of them inside each building and increase base power production by <span class="effect-value"></span>
+                whlist increasing Uranium consumption only by 0.125.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-13" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Oil seems to still be prohibitively expensive.<br>
+                Devise the more efficient ways of using it in the power plants 
+                that would allow to reduce oil consumption by another <span class="effect-value"></span>%. 
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-storage4" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The material researches in the field of electronics led to a creation of a new method of energy storage.<br>
+                A "substation" has the storage comparable to the accumulator, but requires no Metals to build.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-lab5" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                By creating an interconnected web of communications between our laboratories
+                we can raise the effectiveness of each laboratory to the power of <span class="effect-value"></span>, but that would triple their energy requirements.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-savings3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Some clever energy saving tips shared with the population of nearby <span class="town-or-city">town</span>
+                can reduce their energy requirements by up to <span class="effect-value"></span>%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-scale3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The nuclear power plants can be made more efficient by linking them with each other in the global grid.<br>
+                This will increase their effectiveness by <span class="effect-value"></span>%
+                per each nuclear power plant constructed. 
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-storage5" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The usage of high-voltage transformators can easily multiply the storage capacity of our substations by <span class="effect-value"></span>.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-savings4" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                We can promote the switch to the more energy-efficient LED lightbulbs,
+                which should reduce the energy consumption of people by an additional <span class="effect-value"></span>%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-alternate1" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                All our major energy sources have a big flaw: their profitability changes with the market.<br>
+                The wind turbines, on the other hand, require only occasional maintenance. Learn how to build them.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-alternate2" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                We can learn how to harness the power hidden in height differences.<br>
+                The river dam can stockpile naturally-flowing water in a reservoir and then rush it all down for energy at once.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-lab6" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Equipping each laboratory of ours with a powerful server rack to run simulations in
+                will increase base lab effectiveness by <span class="effect-value"></span>% per owned laboratory by making them twice more expensive energy-wise.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-wind1" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Wind energy can be tricky, but we can cope.<br>
+                An improved architectural design for our new wind turbine generation will allow them to gather 
+                <span class="effect-value"></span>% of their max power even in bad conditions.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-alternate3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Our renewable power plants require a special education to interact with, but it is possible to arrange that.<br>
+                The special course on their inner workings will allow you to assign engineers in "Alternate" tab.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-water1" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                By restructuring the natural landscape to direct more water to our dams,
+                we can improve their water collection rate by <span class="effect-value"></span>% when idle.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-storage6" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                There is a lot of improvements that can be made in the energy storage field with low cost.<br>
+                The new high-voltage energy guidelines would make engineers working in Storage department <span class="effect-value"></span> times as efficient.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-wind2" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The new, sturdy constructions of wind turbines 
+                will allow them to fully work even in strongest of hurricanes.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-water2" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The mechanics of water dams are unnecessary complicated, and there must be a way to automate them.<br>
+                With this upgrade, the engineer on enabled water dams would ensure an optimal energy output.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-alternate4" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The Sun is eternal - or, at least, it will surely outlive any intelligent life on Earth.<br>
+                Learn how to gather the power of heat it emits into something more useful for industrial operations.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-wind3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                We can work on improving wind turbine design for the sake of better energy production.<br>
+                It seems that it is possible to reach <span class="effect-value"></span> times greater output by using better design.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-alternate5" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The Earth is the last of classical elements we did not conquer yet.<br>
+                Transfer the heat it generates into the form of usable energy with the aid of geothermal power plants.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-water3" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The additional engineering innovations brought to our water dam design
+                would increase their water collection rate by an additional <span class="effect-value"></span>% when idle.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-wind4" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The more wind turbines we have, the lower the operating costs.<br>
+                By introducing unified rules and guidelines for operating them, we can increase their output by <span class="effect-value"></span>%
+                per wind turbine owned.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-solar1" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The introduction of simple and reliable perovskite solar cells into our solar panels
+                can increase their efficiency by up to <span class="effect-value"></span>%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-alternate6" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Renewable energy is a new and rapidly-developing field. There is much to be gained still.<br>
+                Each engineer past the first assigned to a power plant in "Alternate" tab would boost the strength of all engineers there by 100%.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-geo1" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The switch to the binary cycle on geothermal stations<br>
+                will allow us to productively use temperatures as low as <span class="effect-value"></span> °C.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-water4" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                Create a unified electrical network to which all water dams are connected.<br>
+                By regulating their output with the use of specialized AI algorithms, 
+                the dam productivity can be increased by <span class="effect-value"></span>%
+                per water dam owned.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-solar2" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                A large array of solar cells allows us to test technologies for improvements very quickly.<br>
+                By launching a dedicated program to maximize the output of solar panels, 
+                we can increase their productivity by <span class="effect-value"></span>%
+                per owned solar panel.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-geo2" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The drilling is hard, but practice makes perfect.<br>
+                By using our experience for the construction of new geothermal plants, 
+                we can increase the productivity of all of them by <span class="effect-value"></span>%
+                per owned geothermal plant.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+            <button id="res-ascend" class="research-upgrade">
+              <img src="img/brainstorm-skill.png" style="grid-row: 1; grid-column: 1; height: 80%"/>
+              <p style="grid-row: 1; grid-column: 2; font-size: 0.85em; justify-self: flex-start; text-align: left">
+                The Earth is doomed.
+                The resources are more scarce with each passing year, and the climate change is going to wreck the ecosystem.<br>
+                Construct a Starship to escape from this planet and take humanity to the stars.
+              </p>
+              <div style="grid-row: 1; grid-column: 3; display: flex; flex-direction: row; font-size: 1.4em; align-items: center">
+                <img src="img/test-tube.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="cost-value" style="color: var(--color-science)"></p>
+              </div>
+            </button>
+          </div>
+        
+          <div class="tab" id="tab_alternate" style="display: none">
+            <div id="wind_turbine" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em">
+              <img src="img/wind-turbine.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2; grid-row: 1; text-align: left; font-size: 1.4em;">Wind Turbine</p>
+              <div style="grid-column: 3; grid-row: 1; text-align: left; font-size: 1.4em; display: flex; flex-direction: row; align-items: center; align-self: flex-start">
+                <img src="img/wind.png" style="height: 1em; margin-right: 0.5em"/>
+                <p id="wind_status"></p>
+              </div>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/metal.png" class="inline-icon"/><span style="color: var(--color-metal)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" class="inline-icon"/><span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <div style="grid-column: 3; grid-row: 2 / 4; text-align: left; font-size: 0.8em; display: flex; flex-direction: column; justify-content: space-between"><p>
+                +<img src="img/electricity.png" class="inline-icon"/><span id="wind_strength" style="color: var(--color-energy)"></span>/s (avg. <span id="wind_average" style="color: var(--color-energy)"></span>)
+                <br>+<img src="img/electricity.png" class="inline-icon"/><span class="effect-value" style="color: var(--color-energy)"></span>/s right now</p>
+                <p>Owned: <span class="amount"></span></p>
+              </div>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <img class="progression-tag-hidden-17" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-17" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('wind_turbine')">-</button>
+                <p class="variable-value" name="engineers" index="wind_turbine" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('wind_turbine')">+</button>
+              </div>
+              <p class="progression-tag-hidden-17 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+            
+            <div id="water_dam" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em">
+              <img src="img/hydroelectric.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2; grid-row: 1; text-align: left; font-size: 1.4em;">Water Dam</p>
+              <div style="grid-column: 3; grid-row: 1; text-align: left; font-size: 1.4em; display: flex; flex-direction: row; align-items: center; align-self: flex-start">
+                <img src="img/water.png" style="height: 1em; margin-right: 0.5em"/>
+                <p class="variable-value" name="water" style="color: var(--color-water)" fixed></p>
+              </div>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/metal.png" class="inline-icon"/><span style="color: var(--color-metal)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" class="inline-icon"/><span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <div style="grid-column: 3; grid-row: 2 / 4; text-align: left; font-size: 0.8em; display: flex; flex-direction: column; justify-content: space-between"><p>
+                +<img src="img/electricity.png" class="inline-icon"/><span id="water_strength" style="color: var(--color-energy)"></span>/s, -<img src="img/water.png" class="inline-icon"/><span id="water_consumption" style="color: var(--color-water)"></span>/s
+                <br>or +<img src="img/water.png" class="inline-icon"/><span id="water_production" style="color: var(--color-water)"></span>/s (avg. <span id="water_average" style="color: var(--color-energy)"></span>)</p>
+                <div style="grid-column: 3; grid-row: 3; text-align: left; display: grid; grid-template-rows: 1fr; grid-template-columns: 3fr 4fr; align-items: flex-end;">
+                  <p style="margin-right: 1em;">Owned: <span class="amount"></span></p>
+                  <button id="water_switch" style="width: 80%;" onclick="player.water_works = !player.water_works">Turn on</button>
+                </div>
+              </div>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <img class="progression-tag-hidden-17" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-17" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('water_dam')">-</button>
+                <p class="variable-value" name="engineers" index="water_dam" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('water_dam')">+</button>
+              </div>
+              <p class="progression-tag-hidden-17 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+            
+            <div id="solar_panel" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em">
+              <img src="img/solar-energy.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2; grid-row: 1; text-align: left; font-size: 1.4em;">Solar Panel</p>
+              <div style="grid-column: 3; grid-row: 1; text-align: left; font-size: 1.4em; display: flex; flex-direction: row; align-items: center; align-self: flex-start">
+                <img src="img/sun--v1.png" id="solar_sunny" style="height: 1em; margin-right: 0.5em"/>
+                <img src="img/sunrise.png" id="solar_sunrise" style="height: 1em; margin-right: 0.5em"/>
+                <img src="img/sunset.png" id="solar_sunset" style="height: 1em; margin-right: 0.5em"/>
+                <img src="img/partly-cloudy-day--v1.png" id="solar_partly_cloudy" style="height: 1em; margin-right: 0.5em"/>
+                <img src="img/cloud.png" id="solar_cloudy" style="height: 1em; margin-right: 0.5em"/>
+                <img src="img/new-moon--v1.png" id="solar_night" style="height: 1em; margin-right: 0.5em"/>
+                <p id="solar_status"></p>
+              </div>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/processor.png" style="height: 0.8em"/> <span style="color: var(--color-electronics)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" class="inline-icon"/><span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <div style="grid-column: 3; grid-row: 2 / 4; text-align: left; font-size: 0.8em; display: flex; flex-direction: column; justify-content: space-between"><p>
+                +<img src="img/electricity.png" class="inline-icon"/><span id="solar_strength" style="color: var(--color-energy)"></span>/s (avg. <span id="solar_average" style="color: var(--color-energy)"></span>)
+                <br>+<img src="img/electricity.png" class="inline-icon"/><span class="effect-value" style="color: var(--color-energy)" fixed></span>/s right now</p>
+                <p>Owned: <span class="amount"></span></p>
+              </div>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <img class="progression-tag-hidden-17" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-17" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('solar_panel')">-</button>
+                <p class="variable-value" name="engineers" index="solar_panel" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('solar_panel')">+</button>
+              </div>
+              <p class="progression-tag-hidden-17 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+            
+            <div id="geothermal" style="grid-template-columns: 2fr 2fr 2fr 1fr; grid-template-rows: 4fr 5fr 3fr; gap: 0.4em">
+              <img src="img/temperature-inside.png" style="grid-column: 1; grid-row: 1 / 4; height: 5em; justify-self: center; align-self: center"/>
+              <p style="grid-column: 2; grid-row: 1; text-align: left; font-size: 1.4em;">Geothermal</p>
+              <div style="grid-column: 3; grid-row: 1; text-align: left; font-size: 1.4em; display: flex; flex-direction: row; align-items: center; align-self: flex-start">
+                <img src="img/thermometer--v2.png" style="height: 1em; margin-right: 0.5em"/>
+                <p id="earth_status"><span class="variable-value" name="earth_temperature" rounded fixed></span> °C</p>
+              </div>
+              <p style="grid-column: 2; grid-row: 2; text-align: left; font-size: 0.8em"><img src="img/processor.png" style="height: 0.8em"/> <span style="color: var(--color-electronics)" class="cost-value"></span><span class="monetary-cost"> (<img src="img/48/money.png" class="inline-icon"/><span class="monetary-cost-value" style="color: var(--color-money)"></span>)</span></p>
+              <div style="grid-column: 3; grid-row: 2 / 4; text-align: left; font-size: 0.8em; display: flex; flex-direction: column; justify-content: space-between"><p>
+                +<img src="img/electricity.png" class="inline-icon"/><span id="earth_increment" style="color: var(--color-energy)"></span>/s/°C above <span id="earth_min_temp"></span>
+                <br>+<img src="img/electricity.png" class="inline-icon"/><span class="effect-value" style="color: var(--color-energy)" fixed></span>/s (avg. <span id="earth_average" style="color: var(--color-energy)"></span>)</p>
+                <p>Owned: <span class="amount"></span></p>
+              </div>
+              <button class="buy" style="grid-column: 2; grid-row: 3; font-size: 0.8em; width: 80%">Purchase</button>
+              <img class="progression-tag-hidden-17" src="img/engineer.png" style="grid-column: 4; grid-row: 1; justify-self: center; align-self: center; height: 1.6em"/>
+              <div class="progression-tag-hidden-17" style="grid-column: 4; grid-row: 2; display: flex; flex-direction: row; justify-self: center; align-self: center; align-items: center;">
+                <button class="decrease-engineers" style="font-size: 0.8em" onclick="remove_engineer('geothermal')">-</button>
+                <p class="variable-value" name="engineers" index="geothermal" style="margin-left: 0.6em; margin-right: 0.6em; font-size: 1em; color: var(--color-engineer)"></p>
+                <button class="increase-engineers" style="font-size: 0.8em" onclick="add_engineer('geothermal')">+</button>
+              </div>
+              <p class="progression-tag-hidden-17 engineer-effectiveness" style="grid-column: 4; grid-row: 3; text-align: center; align-self: center; color: #00ff00"></p>
+            </div>
+          </div>
+        
+          <div class="tab" id="tab_starship" style="display: none; grid-template-rows: repeat(7, 2fr) 1fr">
+            <div id="ascend_metal" style="display: grid; grid-template-columns: 1fr 5fr">
+              <div style="align-self: center; justify-self: center">
+                <img class="not-ready" src="img/rocket--v1.png" style="height: 1.5em; filter: grayscale(1)"/>
+                <img class="ready" src="img/rocket--v1.png" style="height: 2.5em; display: none"/>
+              </div>
+              <div style="display: flex; flex-direction: column">
+                <p style="font-size: 1.2em">The starship needs an external structure.</p>
+                <p style="font-size: 0.8em"><img src="img/metal.png" class="inline-icon"><span style="color: var(--color-metal)"><span class="variable-value" name="metal" rounded fixed></span> / <span class="requirement"></span></span> collected</p>
+                <div style="flex-grow: 1; width: 80%; background-color: var(--color-200); margin-top: 0.4em; position: relative">
+                  <div class="percentage-bar" style="position: absolute; left: 0; top: 0; bottom: 0; background-color: var(--color-400);"></div>
+                  <p class="percentage" style="position: absolute; left: 0; right: 0; font-size: 0.8em; text-align: center"></p>
+                </div>
+              </div>
+            </div>
+            
+            <div id="ascend_coal" style="display: grid; grid-template-columns: 1fr 5fr">
+              <div style="align-self: center; justify-self: center">
+                <img class="not-ready" src="img/rocket--v1.png" style="height: 1.5em; filter: grayscale(1)"/>
+                <img class="ready" src="img/rocket--v1.png" style="height: 2.5em; display: none"/>
+              </div>
+              <div style="display: flex; flex-direction: column">
+                <p style="font-size: 1.2em">The starship needs enough carbon onboard.</p>
+                <p style="font-size: 0.8em"><img src="img/mine-cart.png" class="inline-icon"><span style="color: var(--color-coal)"><span class="variable-value" name="coal" rounded fixed></span> / <span class="requirement"></span></span> collected</p>
+                <div style="flex-grow: 1; width: 80%; background-color: var(--color-200); margin-top: 0.4em; position: relative">
+                  <div class="percentage-bar" style="position: absolute; left: 0; top: 0; bottom: 0; background-color: var(--color-400);"></div>
+                  <p class="percentage" style="position: absolute; left: 0; right: 0; font-size: 0.8em; text-align: center"></p>
+                </div>
+              </div>
+            </div>
+            
+            <div id="ascend_oil" style="display: grid; grid-template-columns: 1fr 5fr">
+              <div style="align-self: center; justify-self: center">
+                <img class="not-ready" src="img/rocket--v1.png" style="height: 1.5em; filter: grayscale(1)"/>
+                <img class="ready" src="img/rocket--v1.png" style="height: 2.5em; display: none"/>
+              </div>
+              <div style="display: flex; flex-direction: column">
+                <p style="font-size: 1.2em">The starship needs fuel to launch itself.</p>
+                <p style="font-size: 0.8em"><img src="img/oil-industry.png" class="inline-icon"><span style="color: var(--color-oil)"><span class="variable-value" name="oil" rounded fixed></span> / <span class="requirement"></span></span> collected</p>
+                <div style="flex-grow: 1; width: 80%; background-color: var(--color-200); margin-top: 0.4em; position: relative">
+                  <div class="percentage-bar" style="position: absolute; left: 0; top: 0; bottom: 0; background-color: var(--color-400);"></div>
+                  <p class="percentage" style="position: absolute; left: 0; right: 0; font-size: 0.8em; text-align: center"></p>
+                </div>
+              </div>
+            </div>
+            
+            <div id="ascend_electronics" style="display: grid; grid-template-columns: 1fr 5fr">
+              <div style="align-self: center; justify-self: center">
+                <img class="not-ready" src="img/rocket--v1.png" style="height: 1.5em; filter: grayscale(1)"/>
+                <img class="ready" src="img/rocket--v1.png" style="height: 2.5em; display: none"/>
+              </div>
+              <div style="display: flex; flex-direction: column">
+                <p style="font-size: 1.2em">The starship needs a navigational system.</p>
+                <p style="font-size: 0.8em"><img src="img/processor.png" class="inline-icon"><span style="color: var(--color-electronics)"><span class="variable-value" name="electronics" rounded fixed></span> / <span class="requirement"></span></span> collected</p>
+                <div style="flex-grow: 1; width: 80%; background-color: var(--color-200); margin-top: 0.4em; position: relative">
+                  <div class="percentage-bar" style="position: absolute; left: 0; top: 0; bottom: 0; background-color: var(--color-400);"></div>
+                  <p class="percentage" style="position: absolute; left: 0; right: 0; font-size: 0.8em; text-align: center"></p>
+                </div>
+              </div>
+            </div>
+            
+            <div id="ascend_uranium" style="display: grid; grid-template-columns: 1fr 5fr">
+              <div style="align-self: center; justify-self: center">
+                <img class="not-ready" src="img/rocket--v1.png" style="height: 1.5em; filter: grayscale(1)"/>
+                <img class="ready" src="img/rocket--v1.png" style="height: 2.5em; display: none"/>
+              </div>
+              <div style="display: flex; flex-direction: column">
+                <p style="font-size: 1.2em">The starship needs an electricity source.</p>
+                <p style="font-size: 0.8em"><img src="img/radio-active.png" class="inline-icon"><span style="color: var(--color-uranium)"><span class="variable-value" name="uranium" rounded fixed></span> / <span class="requirement"></span></span> collected</p>
+                <div style="flex-grow: 1; width: 80%; background-color: var(--color-200); margin-top: 0.4em; position: relative">
+                  <div class="percentage-bar" style="position: absolute; left: 0; top: 0; bottom: 0; background-color: var(--color-400);"></div>
+                  <p class="percentage" style="position: absolute; left: 0; right: 0; font-size: 0.8em; text-align: center"></p>
+                </div>
+              </div>
+            </div>
+            
+            <div id="ascend_energy" style="display: grid; grid-template-columns: 1fr 5fr">
+              <div style="align-self: center; justify-self: center">
+                <img class="not-ready" src="img/rocket--v1.png" style="height: 1.5em; filter: grayscale(1)"/>
+                <img class="ready" src="img/rocket--v1.png" style="height: 2.5em; display: none"/>
+              </div>
+              <div style="display: flex; flex-direction: column">
+                <p style="font-size: 1.2em">The starship needs a guidance from Earth.</p>
+                <p style="font-size: 0.8em"><img src="img/electricity.png" class="inline-icon"><span style="color: var(--color-energy)"><span class="variable-value" name="energy" rounded fixed></span> / <span class="requirement"></span></span> collected</p>
+                <div style="flex-grow: 1; width: 80%; background-color: var(--color-200); margin-top: 0.4em; position: relative">
+                  <div class="percentage-bar" style="position: absolute; left: 0; top: 0; bottom: 0; background-color: var(--color-400);"></div>
+                  <p class="percentage" style="position: absolute; left: 0; right: 0; font-size: 0.8em; text-align: center"></p>
+                </div>
+              </div>
+            </div>
+            
+            <div id="ascend_population" style="display: grid; grid-template-columns: 1fr 5fr">
+              <div style="align-self: center; justify-self: center">
+                <img class="not-ready" src="img/rocket--v1.png" style="height: 1.5em; filter: grayscale(1)"/>
+                <img class="ready" src="img/rocket--v1.png" style="height: 2.5em; display: none"/>
+              </div>
+              <div style="display: flex; flex-direction: column">
+                <p style="font-size: 1.2em">The starship needs carefully chosen crew.</p>
+                <p style="font-size: 0.8em"><img src="img/person-at-home.png" class="inline-icon"><span style=""><span class="variable-value" name="population" rounded fixed></span> / <span class="requirement"></span></span> collected</p>
+                <div style="flex-grow: 1; width: 80%; background-color: var(--color-200); margin-top: 0.4em; position: relative">
+                  <div class="percentage-bar" style="position: absolute; left: 0; top: 0; bottom: 0; background-color: var(--color-400);"></div>
+                  <p class="percentage" style="position: absolute; left: 0; right: 0; font-size: 0.8em; text-align: center"></p>
+                </div>
+              </div>
+            </div>
+            
+            <button id="ascend" style="align-self: center; justify-self: center" onclick="ascend()">
+              Launch
+            </button>
+          </div>
+      </div>
+      <div id="progression_tag_hidden_6" style="display: grid; grid-column: 3; grid-row: 3 / 5; grid-template-columns: 2fr 4fr 2fr; grid-template-rows: 2fr 3fr 5fr 2fr 2fr; gap: 0.6em; visibility: hidden">
+          <div style="grid-column: 1 / 4; grid-row: 1; display: flex; flex-direction: row; align-items: center; font-size: 0.95em;">
+              <p style="margin-right: 0.8em">
+                  Send up to
+              </p>
+              <img src="img/electricity.png" style="height: 60%">
+              <input id="sending_stack" type="text" style="font-size: 1.3em; width: 5em;" value="0" autocomplete="off" autocorrect="off" autocapitalize="off" spendcheck="false">
+              <button style="height: 50%; margin-left: 0.5em; margin-right: 0.5em" onclick="document.getElementById('sending_stack').value = format_number(get_average_energy_production().div(2))" >
+                  50%
+              </button>
+              <button style="height: 50%; margin-right: 0.8em" onclick="document.getElementById('sending_stack').value = format_number(get_average_energy_production())">
+                  100%
+              </button>
+              <p>
+                every second to light the <span class="town-or-city">town</span>
+              </p>
+          </div>
+          <div style="grid-column: 1 / 3; grid-row: 5; display: flex; flex-direction: row; align-items: center;">
+            <img src="img/person-at-home.png" style="height: 2.4em; margin-right: 1em"/> 
+            <p class="variable-value big-number" name="population" integer></p>
+          </div>
+          <div id="consumer_satisfaction" style="grid-column: 1; grid-row: 2 / 4; position: relative; justify-self: flex-start; align-self: flex-start; height: 9.5em; width: 9.5em; --percentage: 50">
+            <div style="position: absolute; top: 0; left: 0; height: 100%; width: 100%; background: url('img/light-on.png'); background-size: cover;"></div>
+            <div style="position: absolute; top: 0; left: 0; height: calc((0.06 + (100 - var(--percentage)) * 0.0067) * 100%); width: 100%; background: url('img/light--v2.png'); background-size: cover;"></div>
+            <p id="consumer_satisfaction_percentage" style="position: absolute; bottom: 0; right: 0; font-size: 0.85em">50.00%</p>
+          </div>
+          <div style="grid-column: 2; grid-row: 2 / 5; font-size: 0.85em">
+            <p>
+              Send the energy for free to light up the <span class="town-or-city">town</span>,
+              thus helping to increase the population.<br>
+              In return, you will get:
+            </p>
+            <ol>
+              <li>increased prices for selling energy, as the industrial demand goes up;</li>
+              <li>reduced prices for buying materials, as the volume of traded goods grows;</li>
+              <li>skilled engineers which would help to enhance your business.</li>
+            </ol>
+          </div>
+          <div style="grid-column: 3; grid-row: 2; font-size: 0.85em">
+            <p>The <span class="town-or-city">town</span> requires</p>
+            <div style="display: flex; flex-direction: row; align-items: center; font-size: 1.5em">
+              <img src="img/electricity.png" style="height: 1em; margin-right: 0.5em"/>
+              <p id="town_demand" style="color: var(--color-energy);"></p>
+            </div>
+          </div>
+          <div style="grid-column: 3; grid-row: 3; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.85em">
+            <div>
+              <p style="text-align: center; font-size: 1.25em">Happiness</p>
+              <div style="display: flex; flex-direction: row; justify-content: space-between">
+                <p>Light</p>
+                <p id="happiness_up" style="color: #00ff00"></p>
+              </div>
+              <div style="display: flex; flex-direction: row; justify-content: space-between">
+                <p>Overpopulation</p>
+                <p id="happiness_down" style="color: #ff0000"></p>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: row; justify-content: space-between;  font-size: 1.25em">
+                <p>Total</p>
+                <p id="happiness_total"></p>
+              </div>
+          </div>
+          <div class="upgrade" id="engineer" style="grid-column: 3; grid-row: 4 / 6; align-self: center">
+            <button class="buy" style="font-size: 0.8em; width: 100%; margin-bottom: 0.5em">
+              Hire an engineer
+              <span class="cost"><br>Cost: <img src="img/48/money.png" class="inline-icon"/><span style="color: #32cd32" class="cost-value" fixed></span></span>
+            </button>
+            <div style="display: flex; flex-direction: row; align-items: center; justify-content: center; font-size: 1.2em">
+              <p style="margin-right: 0.5em">Free</p>
+              <img src="img/engineer.png" style="height: 1.2em"/>
+              <p>: <span style="color: var(--color-engineer)"><span class="variable-value" name="engineers" index="free"></span>/<span class="amount"></span></span></p>
+            </div>
+          </div>
+      </div>
+      <div id="progression_tag_hidden_5" style="grid-column: 3; grid-row: 2; display: grid; grid-template-columns: 1fr 2fr; grid-template-rows: 1fr 3fr 1fr; gap: 0.6em; visibility: hidden">
+          <div style="grid-column: 1; grid-row: 1 / 4; display: grid; grid-template-rows: repeat(5, 1fr); grid-template-columns: 1fr; gap: 0.4em;">
+            <button id="resource_metal" class="resource-data" style="display: grid; grid-template-rows: 2fr 1fr; grid-template-columns: 2fr 3fr; align-items: center;" onclick="player.selected_resource = 'metal'" disabled>
+              <img src="img/metal.png" style="grid-column: 1; grid-row: 1 / 3; justify-self: flex-start; height: 3em"/>
+              <p class="variable-value" name="metal" fixed style="text-align: left; font-size: 1.4em; grid-column: 2; grid-row: 1; color: var(--color-metal);"></p>
+              <p style="text-align: left; font-size: 0.8em; grid-column: 2; grid-row: 2; color: var(--color-money); align-self: flex-start"><img src="img/48/money.png" style="height: 0.8em"/> <span class="variable-value" name="metal_price"></span></p>
+            </button>
+            <button id="resource_coal" class="resource-data" style="display: grid; grid-template-rows: 2fr 1fr; grid-template-columns: 2fr 3fr; align-items: center;" onclick="player.selected_resource = 'coal'">
+              <img src="img/mine-cart.png" style="grid-column: 1; grid-row: 1 / 3; justify-self: flex-start; height: 3em"/>
+              <p class="variable-value" name="coal" fixed style="text-align: left; font-size: 1.4em; grid-column: 2; grid-row: 1; color: var(--color-coal);"></p>
+              <p style="text-align: left; font-size: 0.8em; grid-column: 2; grid-row: 2; color: var(--color-money); align-self: flex-start"><img src="img/48/money.png" style="height: 0.8em"/> <span class="variable-value" name="coal_price"></span></p>
+            </button>
+            <button id="resource_oil" class="resource-data" style="display: grid; grid-template-rows: 2fr 1fr; grid-template-columns: 2fr 3fr; align-items: center; visibility: hidden" onclick="player.selected_resource = 'oil'">
+              <img src="img/oil-industry.png" style="grid-column: 1; grid-row: 1 / 3; justify-self: flex-start; height: 3em"/>
+              <p class="variable-value" name="oil" fixed style="text-align: left; font-size: 1.4em; grid-column: 2; grid-row: 1; color: var(--color-oil);"></p>
+              <p style="text-align: left; font-size: 0.8em; grid-column: 2; grid-row: 2; color: var(--color-money); align-self: flex-start"><img src="img/48/money.png" style="height: 0.8em"/> <span class="variable-value" name="oil_price"></span></p>
+            </button>
+            <button id="resource_electronics" class="resource-data" style="display: grid; grid-template-rows: 2fr 1fr; grid-template-columns: 2fr 3fr; align-items: center; visibility: hidden" onclick="player.selected_resource = 'electronics'">
+              <img src="img/processor.png" style="grid-column: 1; grid-row: 1 / 3; justify-self: flex-start; height: 3em"/>
+              <p class="variable-value" name="electronics" fixed style="text-align: left; font-size: 1.4em; grid-column: 2; grid-row: 1; color: var(--color-electronics);"></p>
+              <p style="text-align: left; font-size: 0.8em; grid-column: 2; grid-row: 2; color: var(--color-money); align-self: flex-start"><img src="img/48/money.png" style="height: 0.8em"/> <span class="variable-value" name="electronics_price"></span></p>
+            </button>
+            <button id="resource_uranium" class="resource-data" style="display: grid; grid-template-rows: 2fr 1fr; grid-template-columns: 2fr 3fr; align-items: center; visibility: hidden" onclick="player.selected_resource = 'uranium'">
+              <img src="img/radio-active.png" style="grid-column: 1; grid-row: 1 / 3; justify-self: flex-start; height: 3em"/>
+              <p class="variable-value" name="uranium" fixed style="text-align: left; font-size: 1.4em; grid-column: 2; grid-row: 1; color: var(--color-uranium);"></p>
+              <p style="text-align: left; font-size: 0.8em; grid-column: 2; grid-row: 2; color: var(--color-money); align-self: flex-start"><img src="img/48/money.png" style="height: 0.8em"/> <span class="variable-value" name="uranium_price"></span></p>
+            </button>
+          </div>
+          <div style="grid-column: 2; grid-row: 1; text-align: center; display: flex; flex-direction: row; justify-content: center; align-items: center">
+            <img src="img/48/money.png" style="height: 60%; margin-right: 1em"/>
+            <p id="current_resource_price" style="font-size: 1.8em; color: var(--color-money);"></p>
+          </div>
+          <div style="grid-column: 2; grid-row: 2; display: grid; grid-template-rows: 1fr; grid-template-columns: repeat(29, 1fr); gap: 0.05em; position: relative">
+            <div id="candle_0" class="candle"></div>
+            <div id="candle_1" class="candle"></div>
+            <div id="candle_2" class="candle"></div>
+            <div id="candle_3" class="candle"></div>
+            <div id="candle_4" class="candle"></div>
+            <div id="candle_5" class="candle"></div>
+            <div id="candle_6" class="candle"></div>
+            <div id="candle_7" class="candle"></div>
+            <div id="candle_8" class="candle"></div>
+            <div id="candle_9" class="candle"></div>
+            <div id="candle_10" class="candle"></div>
+            <div id="candle_11" class="candle"></div>
+            <div id="candle_12" class="candle"></div>
+            <div id="candle_13" class="candle"></div>
+            <div id="candle_14" class="candle"></div>
+            <div id="candle_15" class="candle"></div>
+            <div id="candle_16" class="candle"></div>
+            <div id="candle_17" class="candle"></div>
+            <div id="candle_18" class="candle"></div>
+            <div id="candle_19" class="candle"></div>
+            <div id="candle_20" class="candle"></div>
+            <div id="candle_21" class="candle"></div>
+            <div id="candle_22" class="candle"></div>
+            <div id="candle_23" class="candle"></div>
+            <div id="candle_24" class="candle"></div>
+            <div id="candle_25" class="candle"></div>
+            <div id="candle_26" class="candle"></div>
+            <div id="candle_27" class="candle"></div>
+            <div id="candle_28" class="candle"></div>
+          </div>
+          <div style="grid-column: 2; grid-row: 3; display: flex; flex-direction: row; font-size: 0.85em; align-items: center">
+            <button style="height: 50%; margin-right: 1em" onclick="buy_resources()">
+                Buy
+            </button>
+            <input id="buying_stack" type="text" style="font-size: 1.3em; width: 5em;" value="0" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+            <button style="height: 50%; margin-left: 0.5em; margin-right: 0.5em" onclick="document.getElementById('buying_stack').value = format_number(player.money.div(2).div(player[player.selected_resource + '_price']))">
+                50%
+            </button>
+            <button style="height: 50%; margin-right: 1em" onclick="document.getElementById('buying_stack').value = format_number(player.money.div(player[player.selected_resource + '_price']))">
+                100%
+            </button>
+            <p style="margin-right: 1em">for</p>
+            <img src="img/48/money.png" style="height: 60%; margin-right: 0.5em"/>
+            <p id="money_from_buying_stack" style="color: #32cd32; font-size: 1.2em; margin-right: 1em"></p>
+          </div>
+      </div>
+      <div style="grid-column: 1 / 3; grid-row: 4; display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 2fr 1fr 1fr; gap: 0.6em">
+        <p style="font-size: 0.8em; grid-column: 1; grid-row: 1 / 3; justify-self: flex-start; align-self: flex-end">
+          Game by Semenar#7789 and DEMEMZEA#5151.
+          <br>Icons by <a href="https://icons8.com/" target="_blank">Icons8</a>.
+          <br>Check our other projects: <a href="http://semenar.ru/matter-dim-test" target="_blank">Matter Dimensions</a>.
+        </p>
+        <button style="grid-column: 2; grid-row: 1; font-size: 0.8em; align-self: flex-end" onclick="export_nicely()">
+          Export game
+        </button>
+        <button style="grid-column: 2; grid-row: 2; font-size: 0.8em; align-self: flex-start" onclick="import_nicely()">
+          Import game
+        </button>
+        <button id="restore_backup" style="grid-column: 3; grid-row: 1; font-size: 0.8em; align-self: flex-end; display: none" onclick="restore_nicely()">
+          Restore backup
+        </button>
+        <button style="grid-column: 3; grid-row: 2; font-size: 0.8em; align-self: flex-start" onclick="reset_nicely()">
+          Hard reset
+        </button>
+      </div>
+    </div>
+    
+    <div id="modal_export" class="modal" style="display: none">
+      <div class="submodal">
+        <button style="position: absolute; right: 0; top: 0" onclick="close_modal()">
+          X
+        </button>
+        <p style="text-align: center">Here is your save string! Copy it and save somewhere...</p>
+        <textarea id="export_textarea" style="font-size: 0.6em; margin-top: 1em; resize: none; color: white; background-color: var(--color-100); flex-grow: 1; width: 90%" readonly></textarea>
+      </div>
+    </div>
+    
+    <div id="modal_import" class="modal" style="display: none">
+      <div class="submodal">
+        <button style="position: absolute; right: 0; top: 0" onclick="close_modal()">
+          X
+        </button>
+        <p style="text-align: center">Paste your save in this box and then press "Import"...</p>
+        <textarea id="import_textarea" style="font-size: 0.6em; margin-top: 1em; margin-bottom: 1em; resize: none; color: white; background-color: var(--color-100); flex-grow: 1; width: 90%"></textarea>
+        <button onclick="import_save()">
+          Import
+        </button>
+      </div>
+    </div>
+    
+    <div id="modal_reset" class="modal" style="display: none">
+      <div class="submodal">
+        <button style="position: absolute; right: 0; top: 0" onclick="close_modal()">
+          X
+        </button>
+        <p style="text-align: center">Are you sure you want to reset? This will erase your save!</p>
+        <div style="display: flex; flex-direction: row; align-self: stretch; justify-content: space-around; margin-top: 1em; flex-grow: 1; align-items: center">
+          <button style="width: 40%; font-size: 3vw" onclick="reset_game()">
+            ERASE
+          </button>
+          <button style="width: 40%; font-size: 3vw" onclick="close_modal()">
+            DO NOT
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="modal_restore" class="modal" style="display: none">
+      <div class="submodal" style="justify-content: space-between">
+        <button style="position: absolute; right: 0; top: 0" onclick="close_modal()">
+          X
+        </button>
+        <p style="text-align: center">Are you sure you want to restore your deleted save from backup? Your current save will be wiped. This operation is irreversible!</p>
+        <button style="width: 60%; margin-top: 1em; margin-bottom: 1em; flex-grow: 1" onclick="restore_from_backup()">
+          Yeah, I'm sure
+        </button>
+        <button style="width: 60%; margin-top: 1em; margin-bottom: 1em; flex-grow: 1" onclick="close_modal()">
+          Let me think it through first...
+        </button>
+        <button style="width: 60%; margin-top: 1em; margin-bottom: 1em; flex-grow: 1" onclick="delete_backup()">
+          Actually, I just wanted to delete my backup
+        </button>
+      </div>
+    </div>
+    
+    <div id="modal_ascend" class="modal" style="display: none">
+      <div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-image: url('https://opengameart.org/sites/default/files/backgroundSpace_01.1.png'); background-repeat: repeat; background-size: auto auto"></div>
+      <div class="submodal" style="background-color: var(--color-100); left: 10%; right: 10%; top: 10%; bottom: 10%;">
+        <p style="text-align: center; font-size: 3em">Congratulations!</p>
+        <p style="text-align: center; font-size: 1.5em">You have beaten the game!</p>
+        <p>&nbsp;<br>You managed to build a prosperous energy company, you lit up the whole city and you gathered enough resources to build a spaceship.<br><br>
+        The content ends here. Thank you for playing! You can continue, if you want.</p>
+        <div style="display: flex; flex-direction: row; align-self: stretch; justify-content: center; margin-top: 1em; flex-grow: 1; align-items: center">
+          <button style="width: 40%; font-size: 3vw" onclick="close_modal()">
+            Continue
+          </button>
+        </div>
+        <p>This game was made for <a href="https://itch.io/jam/incremental-game-jam-2" target="_blank">Incremental Game Jam 2</a>; try more cool games by other developers there!</p>
+      </div>
+    </div>
+    
+    <script src="js/classes/upgrade.js"></script> 
+    <script src="js/render.js"></script>
+    <script src="js/format_number.js"></script>
+    <script src="js/saveload.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="js/main.js"></script>
+<!--客服 开始-->
+<script src="//g8hh.github.io/static/js/jquery.min.js"></script>
+<link rel="stylesheet" href="//g8hh.github.io/static/css/kf.css" type="text/css" media="screen" charset="utf-8">
+<script src="//g8hh.github.io/static/js/kf.js"></script>
+<!-- 客服 结束 -->
+<!--站长统计--> 
+<div style="display: none">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?028b1b5f659ed138230f4cafd7ad0dfc";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    </div>
+  </body>
+</html>

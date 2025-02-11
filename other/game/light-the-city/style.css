@@ -1,0 +1,169 @@
+/* CSS files add styling rules to your content */
+
+* {
+  font-family: 'Source Code Pro', 'Lucida Console', 'Courier New', 'Courier', monospace;
+  
+  user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  
+  margin: 0;
+}
+
+textarea {
+  user-select: text;
+  -ms-user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+}
+
+html {
+  color: white;
+  background-color: var(--color-100);
+  
+  /* A theme */
+  --color-100: #10002bff;
+  --color-200: #240046ff;
+  --color-300: #3c096cff;
+  --color-400: #5a189aff;
+  --color-500: #7b2cbfff;
+  --color-600: #9d4eddff;
+  --color-700: #c77dffff;
+  --color-800: #e0aaffff;
+  
+  /* Some extra colors */
+  --color-energy: #fcf300;
+  --color-money: #32cd32;
+  --color-metal: #d0d0d0;
+  --color-coal: #999999;
+  --color-oil: #c06060;
+  --color-electronics: #1faee9;
+  --color-uranium: #99ff99;
+  
+  --color-stonks: #006400;
+  --color-shorts: #640000;
+  
+  --color-engineer: #ff8c00;
+  --color-science: #0060ff;
+  
+  --color-water: #0080D0;
+}
+
+body {
+  font-size: calc(max(1rem, 1vw));
+}
+
+a {
+  color: white;
+  font: inherit;
+}
+
+button {
+  background-color: var(--color-400);
+  border: 0;
+  padding: 0.2em 1em;
+  cursor: pointer;
+  color: white;
+  font: inherit;
+}
+
+button:hover {
+  background-color: var(--color-500);
+}
+
+button:disabled {
+  background-color: var(--color-200);
+  cursor: auto;
+}
+
+.header {
+  font-size: 1.5em;
+}
+
+.big-number {
+  font-size: 2em;
+}
+
+.tab {
+  display: grid; 
+  gap: 0.6em; 
+  grid-template-columns: 1fr; 
+  grid-template-rows: repeat(5, 1fr);
+}
+
+button.upgrade-complete {
+  background-color: #006400;
+}
+
+.tab > div {
+  display: grid;
+}
+
+.candle {
+  position: relative;
+  justify-self: stretch;
+}
+
+.inline-icon {
+  height: 0.8em;
+  position: relative;
+  top: 0.06em;
+  margin-right: 0.3em;
+}
+
+.research-upgrade {
+  display: grid; 
+  grid-template-columns: 1fr 3fr 1fr; 
+  justify-items: center; 
+  align-items: center;
+}
+
+.modal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #00000080;
+}
+
+.submodal {
+  position: absolute;
+  left: 20%;
+  top: 20%;
+  right: 20%;
+  bottom: 20%;
+  background-color: var(--color-200);
+  padding-top: 1.5em;
+  padding-bottom: 1.5em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.prototyping-table {
+  display: grid; 
+  gap: 0.6em;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding: 0.6em;
+}
+.prototyping-div {
+  background-color: #ffffff20; 
+  background-blend-mode: mix;
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; 
+  text-align: center;
+  position: relative;
+}
+.prototyping-div .prototyping-table {
+  padding: 0;
+}
