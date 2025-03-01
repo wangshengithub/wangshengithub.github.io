@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wogley</title>
+    <link rel="stylesheet" href="style.css?v0412=1">
+    <link rel="icon" type="image/x-icon" href="img/oreStone.png">
+</head>
+<body>
+    <script src="chs.js"></script>
+    <script src="core.js"></script>
+    <canvas id="canvas"></canvas>
+    <p id="fps" style="color: white; position: absolute; bottom: 0"></p>
+
+    <div id="gameContainer" style="margin: 0; width: calc(100vw - 275px); min-width: 450px">
+        <div id="miningTab">
+            <select name="drillSelection" id="drillSelection" onchange="selectDrill(document.getElementById('drillSelection').value)">
+                <option value="drill1">Basic drill</option>
+            </select>
+            <h2 id="drillInfo">Basic drill (power 1, speed 1)</h2>
+            <div id="miningProgressBar">
+                <div id="miningProgressBarInner"></div>
+                <p style="position: relative; z-index: 2">Mining time left: <span id="miningTimeLeft">5.0</span>s</p>
+            </div>
+            <p id="lastOreMine" style="margin-bottom: 10px">Mine an ore to see it!</p>
+            <button id="drillSpeedupButton" onpointerdown="drillSpeedupOn()" onpointerup="drillSpeedupOff()" onmouseout="drillSpeedupOff()">Hold to speed up drill!</button>
+            <p><b>Probabilities for this drill:</b></p>
+            <table id="probabilityList" style="width: 390px"></table><br><br>
+            <input id="pinUpgradeCheckbox" style="width: 20px; margin-right: 0; margin-left: 10px; display: none" type="checkbox" onchange="pinUnpinDrillUpgrades()"/>
+            <p id="pinUpgradeLabel" style="display: none">Pin this drill's upgrades</p>
+            <div id="drillUpgradesGrid">
+                <div style="border: 2px solid #777">
+                    <p id="drillPower"><b>Drill Power: 1</b><br>(1-1 ore/mine)</p>
+                    <button id="drillPowerButton" style="width: 179px" onclick="upgradeDrillPower()">Upgrade drill power<br>Next: 1-2 ore/mine</button>
+                </div>
+                <div style="border: 2px solid #777">
+                    <p id="drillSpeed"><b>Drill speed: 1</b><br>(5.00s)</p>
+                    <button id="drillSpeedButton" style="width: 179px" onclick="upgradeDrillSpeed()">Upgrade drill speed<br>Next: 4.00s</button>
+                </div>
+                <div style="border: 2px solid #777; grid-column: 1 / span 2;">
+                    <button id="drillUnlockButton" onclick="unlockDrill()"></button>
+                </div>
+            </div>
+        </div>
+
+        <button id="unlockSmelteryButton" class="unlockButton" onclick="unlockSmeltery()">Unlock smeltery</button>
+        <div id="smelteryTab">
+            <h2 id="smelteryTitle">Smeltery (tier 1)</h2>
+            <p>Limit determines the max amount before auto-smelting stops. Set to 0 to disable.</p>
+            <div id="smelteryGrid">
+                <div class="smelteryItem" style="border: 2px solid #777">
+                    <p><input type="number" class="smeltingAmountInput" onchange="setSmeltingAmount(0)" value="1" min="1" max="1"></input><b><img src='img/oreBronze.png' style='vertical-align: middle'>Bronze</b><br>(max <span class="smeltingAmountMax">1</span>/smelt)<br><span class="smeltingCosts"></span></p>
+                    <button onclick="smeltAlloy(0)">Smelt!</button>
+                    <button class="autoSmeltingButton" onclick="enableDisableAutoSmelting(0)">Enable auto-smelting</button>
+                    <p style="display: inline-block">Limit:</p>
+                    <input type="number" class="autoSmeltingLimitInput" onchange="setAutoSmeltingLimit(0)" value="0" min="0"></input>
+                    <div class="smeltingProgressBar"><div class="smeltingProgressBarInner"></div></div>
+                </div>
+                <div class="smelteryItem" style="border: 2px solid #777">
+                    <p><input type="number" class="smeltingAmountInput" onchange="setSmeltingAmount(1)" value="1" min="1" max="1"></input><b><img src='img/oreBrass.png' style='vertical-align: middle'>Brass</b><br>(max <span class="smeltingAmountMax">1</span>/smelt)<br><span class="smeltingCosts"></span></p>
+                    <button onclick="smeltAlloy(1)">Smelt!</button>
+                    <button class="autoSmeltingButton" onclick="enableDisableAutoSmelting(1)">Enable auto-smelting</button>
+                    <p style="display: inline-block">Limit:</p>
+                    <input type="number" class="autoSmeltingLimitInput" onchange="setAutoSmeltingLimit(1)" value="0" min="0"></input>
+                    <div class="smeltingProgressBar"><div class="smeltingProgressBarInner"></div></div>
+                </div>
+                <div class="smelteryItem" style="border: 2px solid #777; display: none">
+                    <p><input type="number" class="smeltingAmountInput" onchange="setSmeltingAmount(2)" value="1" min="1" max="1"></input><b><img src='img/oreSteel.png' style='vertical-align: middle'>Steel</b><br>(max <span class="smeltingAmountMax">1</span>/smelt)<br><span class="smeltingCosts"></span></p>
+                    <button onclick="smeltAlloy(2)">Smelt!</button>
+                    <button class="autoSmeltingButton" onclick="enableDisableAutoSmelting(2)">Enable auto-smelting</button>
+                    <p style="display: inline-block">Limit:</p>
+                    <input type="number" class="autoSmeltingLimitInput" onchange="setAutoSmeltingLimit(2)" value="0" min="0"></input>
+                    <div class="smeltingProgressBar"><div class="smeltingProgressBarInner"></div></div>
+                </div>
+                <div class="smelteryItem" style="border: 2px solid #777; display: none">
+                    <p><input type="number" class="smeltingAmountInput" onchange="setSmeltingAmount(3)" value="1" min="1" max="1"></input><b><img src='img/oreRose gold.png' style='vertical-align: middle'>Rose gold</b><br>(max <span class="smeltingAmountMax">1</span>/smelt)<br><span class="smeltingCosts"></span></p>
+                    <button onclick="smeltAlloy(3)">Smelt!</button>
+                    <button class="autoSmeltingButton" onclick="enableDisableAutoSmelting(3)">Enable auto-smelting</button>
+                    <p style="display: inline-block">Limit:</p>
+                    <input type="number" class="autoSmeltingLimitInput" onchange="setAutoSmeltingLimit(3)" value="0" min="0"></input>
+                    <div class="smeltingProgressBar"><div class="smeltingProgressBarInner"></div></div>
+                </div>
+                <div class="smelteryItem" style="border: 2px solid #777; display: none">
+                    <p><input type="number" class="smeltingAmountInput" onchange="setSmeltingAmount(4)" value="1" min="1" max="1"></input><b><img src='img/oreElectrum.png' style='vertical-align: middle'>Electrum</b><br>(max <span class="smeltingAmountMax">1</span>/smelt)<br><span class="smeltingCosts"></span></p>
+                    <button onclick="smeltAlloy(4)">Smelt!</button>
+                    <button class="autoSmeltingButton" onclick="enableDisableAutoSmelting(4)">Enable auto-smelting</button>
+                    <p style="display: inline-block">Limit:</p>
+                    <input type="number" class="autoSmeltingLimitInput" onchange="setAutoSmeltingLimit(4)" value="0" min="0"></input>
+                    <div class="smeltingProgressBar"><div class="smeltingProgressBarInner"></div></div>
+                </div>
+                <div class="smelteryItem" style="border: 2px solid #777; display: none">
+                    <p><input type="number" class="smeltingAmountInput" onchange="setSmeltingAmount(5)" value="1" min="1" max="1"></input><b><img src='img/oreTitanide.png' style='vertical-align: middle'>Titanide</b><br>(max <span class="smeltingAmountMax">1</span>/smelt)<br><span class="smeltingCosts"></span></p>
+                    <button onclick="smeltAlloy(5)">Smelt!</button>
+                    <button class="autoSmeltingButton" onclick="enableDisableAutoSmelting(5)">Enable auto-smelting</button>
+                    <p style="display: inline-block">Limit:</p>
+                    <input type="number" class="autoSmeltingLimitInput" onchange="setAutoSmeltingLimit(5)" value="0" min="0"></input>
+                    <div class="smeltingProgressBar"><div class="smeltingProgressBarInner"></div></div>
+                </div>
+                <div class="smelteryItem" style="border: 2px solid #777; display: none">
+                    <p><input type="number" class="smeltingAmountInput" onchange="setSmeltingAmount(6)" value="1" min="1" max="1"></input><b><img src='img/oreCarbide.png' style='vertical-align: middle'>Carbide</b><br>(max <span class="smeltingAmountMax">1</span>/smelt)<br><span class="smeltingCosts"></span></p>
+                    <button onclick="smeltAlloy(6)">Smelt!</button>
+                    <button class="autoSmeltingButton" onclick="enableDisableAutoSmelting(6)">Enable auto-smelting</button>
+                    <p style="display: inline-block">Limit:</p>
+                    <input type="number" class="autoSmeltingLimitInput" onchange="setAutoSmeltingLimit(6)" value="0" min="0"></input>
+                    <div class="smeltingProgressBar"><div class="smeltingProgressBarInner"></div></div>
+                </div>
+                <button id="smelteryUpgradeButton" onclick="upgradeSmeltery()">Upgrade smeltery to tier 2<br>Costs:</button>
+            </div>
+        </div>
+
+        <button id="unlockGemsButton" class="unlockButton" style="display: none" onclick="unlockGems()">Unlock gems</button>
+        <div id="gemsTab">
+            <select name="stoneBreakerSelection" id="stoneBreakerSelection" onchange="selectStoneBreaker(document.getElementById('stoneBreakerSelection').value)">
+                <option value="stoneBreaker1">Basic stone breaker</option>
+            </select>
+            <select name="stoneBreakerSizeSelection" id="stoneBreakerSizeSelection" onchange="selectStoneBreakerSize(document.getElementById('stoneBreakerSizeSelection').value)">
+                <option value="stoneBreakerSize1">Small stone breaking</option>
+                <option value="stoneBreakerSize2">Medium stone breaking</option>
+                <option value="stoneBreakerSize3">Large stone breaking</option>
+            </select>
+            <h2 id="stoneBreakerInfo">Basic stone breaker</h2>
+            <p id="stoneBreakerInfo2">Small stone breaking - 1-3 gems per find<br>Max 2 different gems per break</p>
+            <div id="breakingProgressBar">
+                <div id="breakingProgressBarInner"></div>
+                <p style="position: relative; z-index: 2">Breaking time left: <span id="breakingTimeLeft">30.0</span>s</p>
+            </div>
+            <p id="lastGemFinds" style="margin-bottom: 10px">Find some gems to see them!</p>
+            <button id="breakStoneButton" onclick="breakStone()">Break stone - Costs 1000 <img src='img/oreStone.png' style='vertical-align: middle'>stone</button><br>
+            <button id="autoBreakingButton" onclick="enableDisableAutoBreaking()">Enable auto-breaking</button>
+            <p>Gem finding probabilities are independent, so zero finds or multiple finds are possible per break!<br>Each break also produces 50-100 <img src='img/oreCoal.png' style='vertical-align: middle'>coal.</p>
+            <p><b>Probabilities for this stone breaker:</b><br><span id="gemProbabilityList"></span></p><br><br>
+            <button id="stoneBreakerUnlockButton" onclick="unlockStoneBreaker()"></button>
+        </div>
+
+        <button id="unlockManaButton" class="unlockButton" style="display: none" onclick="unlockMana()">Unlock <span style="color: #8ff">mana</span></button>
+        <div id="manaTab">
+            <h2 style="text-align: center; margin-top: 10px; color: #8ff"><img src="img/itemMana.png" style="width: 32px; vertical-align: middle"> You have <span id="mana">0</span> mana <img src="img/itemMana.png" style="width: 32px; vertical-align: middle"></h2>
+            <p style="text-align: center; margin-top: 10px">Resetting will reset your ores, drills, stone breakers and upgrades, but you will gain <span style="color: #8ff">mana</span> which can be used to upgrade rocks with mystical powers!</p>
+            <button id="manaResetButton" onclick="manaReset()"><b>Reset for 0 mana</b></button>
+            <p id="manaResetInfo" style="text-align: center">First reset always gives 3 mana!</p><br><br>
+            <div id="mysticalRocksGrid">
+                <div class="mysticalRock">
+                    <p><img src="img/rockGranite.png"><b>Granite [<span class="mysticalRockLevel">0/10</span>]</b><br>Multiply <span style="color: #88ccff">basic drill</span> ore gain<br><span class="mysticalRockEffect"></span></p>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(1,1)">Add 1 mana</button>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(1,2)">Add max mana</button>
+                    <button class="mysticalRockButton" style="height: 22px; margin-bottom: 0" onclick="addMysticalRockMana(1,3)">Add custom</button>
+                    <input class="mysticalRockCustomInput" type="number" value="1" min="1" onchange="setMysticalRockCustomInput(1)"></input>
+                </div>
+                <div class="mysticalRock">
+                    <p><img src="img/rockSlate.png"><b>Slate [<span class="mysticalRockLevel">0</span><span style="color: #dd6">/15</span>]</b><br>Multiply <span style="color: #99dd99">power drill</span> ore gain<br><span class="mysticalRockEffect"></span></p>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(2,1)">Add 1 mana</button>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(2,2)">Add max mana</button>
+                    <button class="mysticalRockButton" style="height: 22px; margin-bottom: 0" onclick="addMysticalRockMana(2,3)">Add custom</button>
+                    <input class="mysticalRockCustomInput" type="number" value="1" min="1" onchange="setMysticalRockCustomInput(2)"></input>
+                </div>
+                <div class="mysticalRock">
+                    <p><img src="img/rockMarble.png"><b>Marble [<span class="mysticalRockLevel">0</span><span style="color: #dd6">/15</span>]</b><br>Multiply <span style="color: #ddbb88">sky drill</span> ore gain<br><span class="mysticalRockEffect"></span></p>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(3,1)">Add 1 mana</button>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(3,2)">Add max mana</button>
+                    <button class="mysticalRockButton" style="height: 22px; margin-bottom: 0" onclick="addMysticalRockMana(3,3)">Add custom</button>
+                    <input class="mysticalRockCustomInput" type="number" value="1" min="1" onchange="setMysticalRockCustomInput(3)"></input>
+                </div>
+                <div class="mysticalRock">
+                    <p><img src="img/rockSandstone.png"><b>Sandstone [<span class="mysticalRockLevel">0</span><span style="color: #dd6">/15</span>]</b><br>Multiply <span style="color: #dd8899">heat drill</span> ore gain<br><span class="mysticalRockEffect"></span></p>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(4,1)">Add 1 mana</button>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(4,2)">Add max mana</button>
+                    <button class="mysticalRockButton" style="height: 22px; margin-bottom: 0" onclick="addMysticalRockMana(4,3)">Add custom</button>
+                    <input class="mysticalRockCustomInput" type="number" value="1" min="1" onchange="setMysticalRockCustomInput(4)"></input>
+                </div>
+                <div class="mysticalRock">
+                    <p><img src="img/rockBasalt.png"><b>Basalt [<span class="mysticalRockLevel">0</span><span style="color: #dd6">/15</span>]</b><br>Multiply <span style="color: #f8aaf8">gem</span> gain<br><span class="mysticalRockEffect"></span></p>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(5,1)">Add 1 mana</button>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(5,2)">Add max mana</button>
+                    <button class="mysticalRockButton" style="height: 22px; margin-bottom: 0" onclick="addMysticalRockMana(5,3)">Add custom</button>
+                    <input class="mysticalRockCustomInput" type="number" value="1" min="1" onchange="setMysticalRockCustomInput(5)"></input>
+                </div>
+                <div class="mysticalRock">
+                    <p><img src="img/rockAndesite.png"><b>Andesite [<span class="mysticalRockLevel">0/10</span>]</b><br>Decrease stone breaking time<br><span class="mysticalRockEffect"></span></p>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(6,1)">Add 1 mana</button>
+                    <button class="mysticalRockButton" onclick="addMysticalRockMana(6,2)">Add max mana</button>
+                    <button class="mysticalRockButton" style="height: 22px; margin-bottom: 0" onclick="addMysticalRockMana(6,3)">Add custom</button>
+                    <input class="mysticalRockCustomInput" type="number" value="1" min="1" onchange="setMysticalRockCustomInput(6)"></input>
+                </div>
+            </div>
+            <p>*<span style="color: #dd6">Yellow limits</span> are endgame limits and will be raised for the next update.<br>In addition, <span style="color: #dd6">mana amount is capped at 25 for now.</span></p>
+        </div>
+    </div>
+
+    <div id="settingsTab">
+        <h2>Settings</h2>
+        <button style="margin-right: 0" onclick="save()">Save</button>
+        <button style="margin-right: 0" onclick="exportGame()">Export</button>
+        <button style="margin-right: 0" onclick="importGame()">Import</button>
+        <button style="margin-right: 0; background-color: #633" onclick="hardReset()">Hard reset</button>
+        <button id="enableDisableBackgroundButton" style="margin-right: 0" onclick="enableDisableBackground()">Disable background</button>
+        <button id="tierDisplayButton" style="margin-right: 0" onclick="changeTierDisplay()">Ore tier display style: Background</button>
+        <p style="position: absolute; bottom: 0; left: 0"><a href="https://discord.gg/7PChmUV3wk">Discord</a><br><a href="changelog.txt">Changelog</a></p>
+        <p style="position: absolute; bottom: 0; right: 0; color: #888; text-align: right">Wogley v0.4.1<br>Time played: <span id="timePlayed">0:00:00</span></p>
+        <!--<p style="position: absolute; bottom: 0; left: 0; border-top: 2px solid #bbb; color: #bbb; padding: 2px; max-height: 40px">Want to get early access to updates? Consider supporting me on <a href="https://www.patreon.com/Demonin">Patreon</a>!</p>-->
+    </div>
+    <div id="settingsTabMinimize" onclick="minimizeSettingsTab()"><p style="text-align: center; line-height: 25px; margin: 0"><b>-</b></p></div>
+
+    <div id="oresTab">
+        <h2>Ores</h2>
+        <p id="oreList"></p>
+        <h2 id="gemListTitle" style="display: none">Gems</h2>
+        <p id="gemList" style="display: none"></p>
+        <h2 id="itemListTitle" style="display: none">Other</h2>
+        <p id="itemList" style="display: none"></p>
+    </div>
+    <div id="oresTabMinimize" onclick="minimizeOresTab()"><p style="text-align: center; line-height: 25px; margin: 0"><b>-</b></p></div>
+    <script src="Mousetrap.js"></script>
+    <script src="background.js?v041=1"></script>
+    <script src="constants.js?v041=1"></script>
+    <script src="script.js?v0413=1"></script>
+    <script src="hotkeys.js?v041=1"></script>
+    <script>load(); if (!isDevVersion) setAutoSave()</script>
+<!--客服 开始-->
+<script src="//g8hh.github.io/static/js/jquery.min.js"></script>
+<link rel="stylesheet" href="//g8hh.github.io/static/css/kf.css" type="text/css" media="screen" charset="utf-8">
+<script src="//g8hh.github.io/static/js/kf.js"></script>
+<!-- 客服 结束 -->
+<!--站长统计--> 
+<div style="display: none">
+    <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?028b1b5f659ed138230f4cafd7ad0dfc";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+    </div>
+    <style>
+        body{background: #fff;}    
+        canvas{display: none;}
+        #miningTab,#smelteryTab,#gemsTab,#settingsTab,button,#oresTab{background-color: #fff;}
+        #drillSpeedupButton,#breakingProgressBar,#settingsTabMinimize,#oresTabMinimize{background: #fff !important;}
+        #miningProgressBar,.smeltingProgressBar{background: #ddd !important;}
+        #settingsTab,#oresTab{background-image: none;}
+        input{background: #ddd;color: #666;}
+        .oreCost{background:#fff linear-gradient(90deg, #666, #666) no-repeat top left / 82.13333333333334% 100%}
+        button{color: #bbb;}
+        table{color: #000;}
+        p, h2{color: #333;}
+    </style>
+</body>
+</html>

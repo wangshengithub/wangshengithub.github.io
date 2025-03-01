@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>打气球</title>
+
+    <style>
+        body {
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB, #B0E2FF); /* Sky blue gradient */
+            font-family: sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh; /* Make sure it covers the full viewport height */
+        }
+
+        .qiQiu {
+            position: absolute;
+            width: 80px; /* Reduced size */
+            height: 80px; /* Reduced size */
+            background-color: #ffe5e5;
+            border-radius: 80px 80px 40px 80px; /* Adjusted for the size */
+            transform: rotate(45deg);
+            box-shadow: -5px -5px 40px 10px #ff9999 inset; /* Adjusted for the size */
+            cursor: pointer; /* Change cursor to indicate it's clickable */
+            transition: transform 0.1s ease-in-out; /* Add a subtle transition */
+        }
+
+        .qiQiu:hover {
+            transform: rotate(45deg) scale(1.1); /* Slightly enlarge on hover */
+        }
+
+        .qiQiu::after {
+            position: absolute;
+            bottom: 2px; /* Adjusted for size */
+            right: 2px; /* Adjusted for size */
+            content: "";
+            border: 5px solid transparent; /* Adjusted for size */
+            border-right-color: red;
+            transform: rotate(45deg);
+            border-radius: 8px; /* Adjusted for size */
+        }
+
+        #scortDaQiQiu {
+            font-family: Arial, sans-serif;
+            font-size: 24px; /* Increased font size */
+            color: white; /* Changed color */
+            text-shadow: 2px 2px 4px #000000; /* Added a text shadow */
+            margin-top: 20px; /* Added some margin */
+        }
+
+        button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3e8e41;
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin: 5px;
+        }
+
+        /* Styling for the input and button container */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .speed-control label {
+            margin-right: 5px;
+            font-size: 16px;
+            color: #333; /* Adjust color as needed */
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>打气球喽！</h1> <!-- Game title -->
+    <div class="speed-control">
+        <label for="speedInput">速度设置（原始为15）:</label>
+        <input type="number" id="speedInput">
+        <button type="button" onclick="createSpeed()">保存速度</button>
+    </div>
+    <div><button type="button" onclick="javscript:location.reload();">重新开始游戏</button>
+    <button type="button" onclick="clearQiqiu()">停止游戏（继续需要重新开始）</button></div>
+
+
+    <div id="scortDaQiQiu">分数: 0</div>
+
+    <script>
+        var scort = 0;
+        var random = Math.random;
+        var qiQiuWidth = window.innerWidth;
+        var qiQiuHeight = window.innerHeight;
+        var speedUp = 15;
+        var myBody = document.body || document.documentElement;
+
+        function createQiQiu(number) {
+            for (var i = 0; i < number; i++) { // Corrected the loop condition
+                var qiQiuDiv = document.createElement("div");
+                var qiQiuZuoBiaoX = Math.max(Math.random() * qiQiuWidth - 80, 20); // Reduced size to 80
+                qiQiuDiv.className = "qiQiu";
+                qiQiuDiv.style.left = qiQiuZuoBiaoX + 'px';
+                qiQiuDiv.style.top = qiQiuHeight + 'px';
+                myBody.appendChild(qiQiuDiv);
+            }
+        }
+
+        createQiQiu(2);
+        var qiQiusCreate = setInterval(function () {
+            createQiQiu(2);
+        }, 2000);
+
+        var daQiQiu = setInterval(function () {
+            var qiQius = document.querySelectorAll(".qiQiu");
+            for (var i = 0; i < qiQius.length; i++) {
+                var len = qiQius[i].offsetTop - speedUp;
+                qiQius[i].style.top = len + 'px';
+                qiQius[i].onclick = function () {
+                    this.parentNode.removeChild(this);
+                    scort++;
+                    scortDaQiQiu.innerHTML = "分数: " + scort;
+                }
+                if (len < -80) { // Adjusted to the size of the balloon
+                    alert("气球飘走了！游戏结束！");
+                    clearQiqiu();
+                    break;
+                }
+
+            }
+
+        }, 100);
+
+        function clearQiqiu() {
+            var qiQius = document.querySelectorAll(".qiQiu");
+            for (var i = 0; i < qiQius.length; i++) {
+                qiQius[i].parentNode.removeChild(qiQius[i]);
+            }
+            clearInterval(qiQiusCreate);
+            clearInterval(daQiQiu);
+            scort = 0;
+            scortDaQiQiu.innerHTML = "分数: " + scort; // Reset score display
+        }
+
+        function createSpeed() {
+            speedUp = document.getElementById("speedInput").value;
+        }
+    </script>
+</body>
+
+</html>
