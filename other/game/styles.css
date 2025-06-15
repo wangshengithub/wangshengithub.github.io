@@ -4,6 +4,9 @@ body {
     padding: 0;
     background-color: #f4f4f4;
     color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 header {
@@ -16,34 +19,48 @@ header {
 nav {
     display: flex;
     justify-content: center;
-    background-color: #444;
-    padding: 1em 0;
-}
-
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    padding: 1.5em 1em;
 .game-list {
-    list-style-type: none;
-    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+    width: 100%;
+    max-width: 1200px;
+}
 }
 
 .game-list li {
-    display: inline;
-    margin: 0 15px;
+    display: flex;
+    align-items: center;
+    margin: 10px;
+    background: #ffffff;
+    border-radius: 30px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .game-list a {
-    color: white;
-    text-decoration: none;
-    font-size: 1.2em;
-    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    width: 100%;
+    color: #4a5568;
+    font-size: 1.05em;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: 12px;
 }
 
 .game-list a:hover {
-    text-decoration: underline;
-    transform: scale(1.1);
+    background: #f8fafc;
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
 }
 
 main {
     padding: 2em;
+    min-height: calc(100vh - 320px);
+    box-sizing: border-box;
 }
 
 .featured-game {
@@ -90,11 +107,11 @@ main {
 }
 
 footer {
-    background-color: #333;
-    color: white;
+    background-color: #f8f9fa;
+    color: #666;
     text-align: center;
-    padding: 1em 0;
-    position: absolute;
-    bottom: 0;
+    padding: 2em 0;
+    margin-top: 40px;
+    border-top: 1px solid #e5e7eb;
     width: 100%;
 }
