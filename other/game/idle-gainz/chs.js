@@ -1,9 +1,3 @@
-/*
-
-  汉化: 锅巴汉化 + wangshen + Git游戏
-
-*/
-
 //1.汉化杂项
 var cnItems = {
     _OTHER_: [],

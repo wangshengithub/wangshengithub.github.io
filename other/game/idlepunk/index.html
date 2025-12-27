@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8" />
+<head>
+    <link href="interface.css" rel="stylesheet" type="text/css">
+    <title>朋克放置</title>
+</head>
+<body>
+<div id='unsupportedBrowser' class='unsupportedBrowser'><p>您好，如果您看到此内容，是因为游戏无法加载。 这可能是因为您使用的是无法运行此游戏的Internet Explorer等浏览器。 您需要下载现代浏览器，例如<a href='https://www.google.com.au/chrome/browser/desktop/index.html'>Chrome</a> 或者 <a href='https://www.mozilla.org/en-US/firefox/new/'>Firefox.</a></p><p>如果您已经在使用Chrome或Firefox，请确保已启用Javascript并尝试清除缓存/ Cookie。</p></div>
+<div class="bodyAll" id="bodyAll">
+    <pre class="title">
+    ________  __    __________  __  ___   ____ __
+   /  _/ __ \/ /   / ____/ __ \/ / / / | / / //_/
+   / // / / / /   / __/ / /_/ / / / /  |/ / ,<   
+ _/ // /_/ / /___/ /___/ ____/ /_/ / /|  / /| |  
+/___/_____/_____/_____/_/    \____/_/ |_/_/ |_|      
+    </pre>
+    <hr class="hr">
+    <p class="heading">可用数据: <span class="number" id="dataHacked">10 Bytes</span></p>
+    <p class="heading">总收入: <span class="number" id="totalIncome">0</span> 每秒</p>
+    <!--<p><span class="clickRed" onclick="jackIn(1000000000000000000000000);">CHEAT</span></p> -->
+    <hr class="hr" id="item0HR" style="color: yellow;">
+    <div class="FirefoxFix">
+    <div class="scroll">
+    <!-- Cyberdeck -->
+    <div class="flex-container" id="item0Flex">
+        <!-- Cyberdeck Buy Menu -->
+        <div class="flex-item" id="item0Menu">
+            <p>创建一个 <span class="clickRed" onclick="buyItem(itemList[0], 1);">网络平台</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[0], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[0], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[0], Infinity);">最大</span></p>
+            <p>建造一个 网络平台 的成本是 <span class="number" id="item0Cost">10 Bytes</span></p>
+            <p>你拥有 <span class="number" id="item0Number">0</span>/<span class="number" id="item0NumberMax">100</span> 网络平台</p>
+            <p>一个网络平台黑客窃取 <span class="number" id="item0Rate">1 Byte</span> 每秒</p>
+            <p>全部网络平台黑客窃取<span class="number" id="item0RateTotal">0 Bytes</span> 每秒</p>
+        </div>
+        <div class="flex-item" id="item0UpgradeMenu">
+            <p><span class="clickRed" id="item0UpgradeName" onclick="upgrade(itemList[0]);">升级到符合人体工程学的平台</span></p>
+            <p>这将花费 <span class="number" id="item0UpgradeCost">1 KB</span></p>
+            <p><span id="item0UpgradeDesc">升级说明放在这里</span></p>
+            <p><span class="number" id="item0UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- ICE Pick -->
+    <hr class="hr" id="item1HR">
+    <div class="flex-container" id="item1Flex">
+        <div class="flex-item" id="item1Menu">
+            <p id="item1MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[1], 1);">冰锥</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[1], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[1], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[1], Infinity);">最大</span></p>
+            <p>建造一个 冰锥 的成本是 <span class="number" id="item1Cost">160 Bytes</span></p>
+            <p>你拥有 <span class="number" id="item1Number">0</span>/<span class="number" id="item1NumberMax">100</span> ICE Picks</p>
+            <p>一个冰锥黑客窃取 <span class="number" id="item1Rate">10 Bytes</span> 每秒</p>
+            <p>全部冰锥黑客窃取 <span class="number" id="item1RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的冰锥创建 <span class="number" id="item1CreationRate">0</span> 网络平台 每秒</p>
+        </div>
+        <div class="flex-item" id="item1UpgradeMenu">
+            <p><span class="clickRed" id="item1UpgradeName" onclick="upgrade(itemList[1]);">升级为破冰船</span></p>
+            <p>这将花费 <span class="number" id="item1UpgradeCost">8 KB</span></p>
+            <p><span id="item1UpgradeDesc">ICEBREAKER由传奇的Netrunner Strange Switch开发，是下一代渗透软件。</span></p>
+            <p><span class="number" id="item1UpgradeDetails">UDT</span></p>
+
+        </div>
+    </div>
+    <!-- Botnet -->
+    <hr class="hr" id="item2HR">
+    <div class="flex-container" id="item2Flex">
+        <div class="flex-item" id="item2Menu">
+            <p id="item2MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[2], 1);">僵尸网络</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[2], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[2], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[2], Infinity);">最大</span></p>
+            <p>建造一个 僵尸网络 的成本是 <span class="number" id="item2Cost">3.2 KB</span></p>
+            <p>你拥有 <span class="number" id="item2Number">0</span>/<span class="number" id="item2NumberMax">100</span> 僵尸网络</p>
+            <p>一个僵尸网络黑客窃取 <span class="number" id="item2Rate">10 Bytes</span> 每秒</p>
+            <p>全部僵尸网络黑客窃取 <span class="number" id="item2RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的僵尸网络创建 <span class="number" id="item2CreationRate">0</span> 冰锥 每秒</p>
+        </div>
+        <div class="flex-item" id="item2UpgradeMenu">
+            <p><span class="clickRed" id="item2UpgradeName" onclick="upgrade(itemList[2]);">实现自修改代码</span></p>
+            <p>这将花费 <span class="number" id="item2UpgradeCost">64 KB</span></p>
+            <p><span id="item2UpgradeDesc">你永远不知道你的机器人在渗透时会发现什么，他们现在可以适应不断变化的环境。</span></p>
+            <p><span class="number" id="item2UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- Femtocell -->
+    <hr class="hr" id="item3HR">
+    <div class="flex-container" id="item3Flex">
+        <div class="flex-item" id="item3Menu">
+            <p id="item3MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[3], 1);">基站劫持者</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[3], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[3], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[3], Infinity);">最大</span></p>
+            <p>>建造一个 基站劫持者 的成本是 <span class="number" id="item3Cost"> ITEMCOSTGOESHERE </span></p>
+            <p>你拥有 <span class="number" id="item3Number">0</span>/<span class="number" id="item3NumberMax">100</span> 基站劫持者 </p>
+            <p>一个基站劫持者黑客窃取 <span class="number" id="item3Rate">ITEMRATEGOESHERE Bytes</span> 每秒</p>
+            <p>全部基站劫持者黑客窃取 <span class="number" id="item3RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的 基站劫持者 创建 <span class="number" id="item3CreationRate">0</span> 僵尸网络 每秒</p>
+        </div>
+        <div class="flex-item" id="item3UpgradeMenu">
+            <p><span class="clickRed" id="item3UpgradeName" onclick="upgrade(itemList[3]);">范围扩展器</span></p>
+            <p>这将花费 <span class="number" id="item3UpgradeCost">ITEMCOSTGOESHERE KB</span></p>
+            <p><span id="item3UpgradeDesc">有人说锥形锡箔对信号范围没有可测量的影响。那些人不使用Sawa Cookeries法拉第铝锥。</span></p>
+            <p><span class="number" id="item3UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- Neural Tetra -->
+    <hr class="hr" id="item4HR">
+    <div class="flex-container" id="item4Flex">
+        <div class="flex-item" id="item4Menu">
+            <p id="item4MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[4], 1);">神经四元</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[4], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[4], 40);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[4], Infinity);">最大</span></p>
+            <p>>建造一个 神经四元 的成本是 <span class="number" id="item4Cost"> ITEMCOSTGOESHERE </span></p>
+            <p>你拥有 <span class="number" id="item4Number">0</span>/<span class="number" id="item4NumberMax">40</span> 神经四元 </p>
+            <p>一个神经四元黑客窃取 <span class="number" id="item4Rate">ITEMRATEGOESHERE Bytes</span> 每秒</p>
+            <p>全部神经四元黑客窃取 <span class="number" id="item4RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的神经四元创建 <span class="number" id="item4CreationRate">0</span> 基站劫持者 每秒</p>
+        </div>
+        <div class="flex-item" id="item4UpgradeMenu">
+            <p><span class="clickRed" id="item4UpgradeName" onclick="upgrade(itemList[4]);">中间人攻击</span></p>
+            <p>这将花费 <span class="number" id="item4UpgradeCost">ITEMCOSTGOESHERE KB</span></p>
+            <p><span id="item4UpgradeDesc">TETRAs提供近乎即时的通信，脑与脑。 现在，您可以进行快速，高效的三方通信。 只是某些对话伙伴可能不知道转换器的数量。</span></p>
+            <p><span class="number" id="item4UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- Quantum Cryptograph -->
+    <hr class="hr" id="item5HR">
+    <div class="flex-container" id="item5Flex">
+        <div class="flex-item" id="item5Menu">
+            <p id="item5MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[5], 1);">量子密码学</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[5], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[5], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[5], Infinity);">最大</span></p>
+            <p>建造一个 量子密码学 的成本是 <span class="number" id="item5Cost"> ITEMCOSTGOESHERE </span></p>
+            <p>你拥有 <span class="number" id="item5Number">0</span>/<span class="number" id="item5NumberMax">100</span> 量子密码学 </p>
+            <p>一个量子密码学黑客窃取 <span class="number" id="item5Rate">ITEMRATEGOESHERE Bytes</span> 每秒</p>
+            <p>全部量子密码学黑客窃取 <span class="number" id="item5RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的量子密码学创建 <span class="number" id="item5CreationRate">0</span> 神经四元 每秒</p>
+        </div>
+        <div class="flex-item" id="item5UpgradeMenu">
+            <p><span class="clickRed" id="item5UpgradeName" onclick="upgrade(itemList[5]);">密码器</span></p>
+            <p>这将花费 <span class="number" id="item5UpgradeCost">ITEMCOSTGOESHERE KB</span></p>
+            <p><span id="item5UpgradeDesc">量子密码学的出现使得解密技术变得艰难。 直到他们研究出如何使用量子计算来协助解密。</span></p>
+            <p><span class="number" id="item5UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- InfoVault Miner -->
+    <hr class="hr" id="item6HR">
+    <div class="flex-container" id="item6Flex">
+        <div class="flex-item" id="item6Menu">
+            <p id="item6MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[6], 1);">信息库矿工</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[6], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[6], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[6], Infinity);">最大</span></p>
+            <p>建造一个 信息库矿工 的成本是 <span class="number" id="item6Cost"> ITEMCOSTGOESHERE </span></p>
+            <p>你拥有 <span class="number" id="item6Number">0</span>/<span class="number" id="item6NumberMax">100</span> 信息库矿工 </p>
+            <p>一个信息库矿工黑客窃取 <span class="number" id="item6Rate">ITEMRATEGOESHERE Bytes</span> 每秒</p>
+            <p>全部信息库矿工黑客窃取 <span class="number" id="item6RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的信息库矿工创建 <span class="number" id="item6CreationRate">0</span> 量子密码学 每秒</p>
+        </div>
+        <div class="flex-item" id="item6UpgradeMenu">
+            <p><span class="clickRed" id="item6UpgradeName" onclick="upgrade(itemList[6]);">数据探测</span></p>
+            <p>这将花费 <span class="number" id="item6UpgradeCost">ITEMCOSTGOESHERE KB</span></p>
+            <p><span id="item6UpgradeDesc">随着企业隐藏其知识产权的需求不断增长，智能资金用于安全数据库的开发。</span></p>
+            <p><span class="number" id="item6UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- Neural Zombie -->
+    <hr class="hr" id="item7HR">
+    <div class="flex-container" id="item7Flex">
+        <div class="flex-item" id="item7Menu">
+            <p id="item7MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[7], 1);">神经僵尸</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[7], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[7], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[7], Infinity);">最大</span></p>
+            <p>建造一个 神经僵尸s 的成本是 <span class="number" id="item7Cost"> 25.6 KB</span></p>
+            <p>你拥有 <span class="number" id="item7Number">0</span>/<span class="number" id="item7NumberMax">100</span> 神经僵尸</p>
+            <p>一个神经僵尸黑客窃取 <span class="number" id="item7Rate">10 Bytes</span> 每秒</p>
+            <p>全部神经僵尸黑客窃取 <span class="number" id="item7RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的僵尸们创建 <span class="number" id="item7CreationRate">0</span> 信息库矿工 每秒</p>
+        </div>
+        <div class="flex-item" id="item7UpgradeMenu">
+            <p><span class="clickRed" id="item7UpgradeName" onclick="upgrade(itemList[7]);">反篡改僵尸</span></p>
+            <p>这将花费 <span class="number" id="item7UpgradeCost">512 KB</span></p>
+            <p><span id="item7UpgradeDesc">一个BioWipe联军防篡改系统和贸易; 将确保您的僵尸内的任何证据都是不可恢复的。</span></p>
+            <p><span class="number" id="item7UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- Satellite Jumper -->
+    <hr class="hr" id="item8HR">
+    <div class="flex-container" id="item8Flex">
+        <div class="flex-item" id="item8Menu">
+            <p id="item8MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[8], 1);">卫星跳线</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[8], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[8], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[8], Infinity);">最大</span></p>
+            <p>建造一个 卫星跳线 的成本是 <span class="number" id="item8Cost"> ITEMCOSTGOESHERE </span></p>
+            <p>你拥有 <span class="number" id="item8Number">0</span>/<span class="number" id="item8NumberMax">100</span> 卫星跳线 </p>
+            <p>一个卫星跳线黑客窃取 <span class="number" id="item8Rate">ITEMRATEGOESHERE Bytes</span> 每秒</p>
+            <p>全部卫星跳线黑客窃取 <span class="number" id="item8RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的卫星跳线创建 <span class="number" id="item8CreationRate">0</span> 神经僵尸 每秒</p>
+        </div>
+        <div class="flex-item" id="item8UpgradeMenu">
+            <p><span class="clickRed" id="item8UpgradeName" onclick="upgrade(itemList[8]);">真空疗法</span></p>
+            <p>这将花费 <span class="number" id="item8UpgradeCost">ITEMCOSTGOESHERE KB</span></p>
+            <p><span id="item8UpgradeDesc">AM太平洋公司着名地将人员留在他们所有的卫星上，以确保快速解决问题。 发送更换人员需要一些时间。</span></p>
+            <p><span class="number" id="item8UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+       <!-- Dark Matter Semiconductors -->
+    <hr class="hr" id="item9HR">
+    <div class="flex-container" id="item9Flex">
+        <div class="flex-item" id="item9Menu">
+            <p id="item9MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[9], 1);">暗物质半导体</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[9], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[9], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[9], Infinity);">最大</span></p>
+            <p>建造一个 暗物质半导体 的成本是 <span class="number" id="item9Cost"> ITEMCOSTGOESHERE </span></p>
+            <p>你拥有 <span class="number" id="item9Number">0</span>/<span class="number" id="item9NumberMax">100</span> 暗物质半导体s </p>
+            <p>一个暗物质半导体黑客窃取 <span class="number" id="item9Rate">ITEMRATEGOESHERE Bytes</span> 每秒</p>
+            <p>全部暗物质半导体黑客窃取 <span class="number" id="item9RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的暗物质半导体创建 <span class="number" id="item9CreationRate">0</span> 卫星跳线 每秒</p>
+        </div>
+        <div class="flex-item" id="item9UpgradeMenu">
+            <p><span class="clickRed" id="item9UpgradeName" onclick="upgrade(itemList[9]);">黑暗的电力</span></p>
+            <p>这将花费 <span class="number" id="item9UpgradeCost">ITEMCOSTGOESHERE KB</span></p>
+            <p><span id="item9UpgradeDesc">通过暗物质的正常电力是令人惊讶的可能。 然而，它没有与暗电的感应存在的必要。</span></p>
+            <p><span class="number" id="item9UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- Artificial Intelligence -->
+    <hr class="hr" id="item10HR">
+    <div class="flex-container" id="item10Flex">
+        <div class="flex-item" id="item10Menu">
+            <p id="item10MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[10], 1);">人工智能</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[10], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[10], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[10], Infinity);">最大</span></p>
+            <p>建造一个 人工智能 的成本是 <span class="number" id="item10Cost">130 KB</span></p>
+            <p>你拥有 <span class="number" id="item10Number">0</span>/<span class="number" id="item10NumberMax">100</span> 人工智能</p>
+            <p>一个人工智能黑客窃取 <span class="number" id="item10Rate">102.10 KB</span> 每秒</p>
+            <p>全部人工智能黑客窃取 <span class="number" id="item10RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的人工智能创建 <span class="number" id="item10CreationRate">0</span> 暗物质半导体 每秒</p>
+        </div>
+        <div class="flex-item" id="item10UpgradeMenu">
+            <p><span class="clickRed" id="item10UpgradeName" onclick="upgrade(itemList[10]);">解锁注册表图灵代码</span></p>
+            <p>这将花费 <span class="number" id="item10UpgradeCost">10.1 MB</span></p>
+            <p><span id="item10UpgradeDesc">在马托格罗索太空升降机降落之后，人工智能模仿人类是非法的。 所有AI人物都被锁定在图灵注册表后面，需要冬季静音代码才能解锁它们。</span></p>
+            <p><span class="number" id="item10UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    <!-- Actual Intelligence -->
+    <hr class="hr" id="item11HR">
+    <div class="flex-container" id="item11Flex">
+        <div class="flex-item" id="item11Menu">
+            <p id="item11MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[11], 1);">实际情报</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[11], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[11], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[11], Infinity);">最大</span></p>
+            <p>建造一个 实际情报 的成本是 <span class="number" id="item11Cost"> ITEMCOSTGOESHERE </span></p>
+            <p>你拥有 <span class="number" id="item11Number">0</span>/<span class="number" id="item11NumberMax">100</span> 实际情报 </p>
+            <p>一个实际情报黑客窃取 <span class="number" id="item11Rate">实际情报 Bytes</span> 每秒</p>
+            <p>全部实际情报黑客窃取 <span class="number" id="item11RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的实际情报创建 <span class="number" id="item11CreationRate">0</span> 人工智能 每秒</p>
+        </div>
+        <div class="flex-item" id="item11UpgradeMenu">
+            <p><span class="clickRed" id="item11UpgradeName" onclick="upgrade(itemList[11]);">合法性</span></p>
+            <p>这将花费 <span class="number" id="item11UpgradeCost">ITEMCOSTGOESHERE KB</span></p>
+            <p><span id="item11UpgradeDesc">人工智能在什么时候停止人工？ 这一点，Voltronics有限公司很自豪地推出了第一个如此真实的网络智能，将其关闭实际上就是谋杀。</span></p>
+            <p><span class="number" id="item11UpgradeDetails">UDT</span></p>
+        </div>
+    </div>  
+    <!-- Simulated Universes -->
+    <hr class="hr" id="item12HR">
+    <div class="flex-container" id="item12Flex">
+        <div class="flex-item" id="item12Menu">
+            <p id="item12MouseOver">创建一个 <span class="clickRed" onclick="buyItem(itemList[12], 1);">模拟宇宙</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[12], 10);">X10</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[12], 100);">X100</span> | 
+            <span class="clickRed" onclick="buyItem(itemList[12], Infinity);">最大</span></p>
+            <p>建造一个 模拟宇宙 的成本是 <span class="number" id="item12Cost"> ITEMCOSTGOESHERE </span></p>
+            <p>你拥有 <span class="number" id="item12Number">0</span>/<span class="number" id="item12NumberMax">100</span> 模拟宇宙 </p>
+            <p>一个模拟宇宙黑客窃取 <span class="number" id="item12Rate">ITEMRATEGOESHERE Bytes</span> 每秒</p>
+            <p>全部模拟宇宙黑客窃取 <span class="number" id="item12RateTotal">0 Bytes</span> 每秒</p>
+            <p>你的模拟宇宙创建 <span class="number" id="item12CreationRate">0</span> 实际情报 每秒</p>
+        </div>
+        <div class="flex-item" id="item12UpgradeMenu">
+            <p><span class="clickRed" id="item12UpgradeName" onclick="upgrade(itemList[12]);">施加限制</span></p>
+            <p>这将花费 <span class="number" id="item12UpgradeCost">ITEMCOSTGOESHERE KB</span></p>
+            <p><span id="item12UpgradeDesc">所以事实证明，如果你模拟一个宇宙，它的居民往往会发现你是否让它运行得足够长。放置限制，如最高速度和最低温度有助于抑制它们的逃逸。</span></p>
+            <p><span class="number" id="item12UpgradeDetails">UDT</span></p>
+        </div>
+    </div>
+    </div>
+    </div>
+    <div id="footerSave">
+        <p>
+            <u class="clickRed" onclick="changeTheme();">更换皮肤</u>&nbsp;
+            <u class="clickRed" onclick="exportSave();">导出存档</u>&nbsp;
+            <u class="clickRed" onclick="importSave();">导入存档</u>&nbsp;
+            <u class="clickRed" onclick="newGame();">新游戏</u>
+        </p>
+    </div>
+    </div>
+    <script src="main.js" type="text/javascript">
+    </script> 
+    <script>
+        window.onload = startUp();
+    </script> 
+    <!-- <script>
+        //Analytics
+          (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,"script","https://www.google-analytics.com/analytics.js","ga");
+
+          ga("create", "UA-83733311-1", "auto");
+          ga("send", "pageview");
+
+    </script>  -->
+    <!-- Adsense -->
+<!--    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>-->
+    <!-- idlepunk -->
+<!--
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-5053719880282396"
+         data-ad-slot="5856748261"
+         data-ad-format="auto"></ins>
+    <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+    </body>
+</html>
