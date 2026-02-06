@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛博木鱼：功德无量Pro</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 背景特效容器 -->
+    <div id="background-effects">
+        <div class="digital-rain"></div>
+        <div class="particle-container"></div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 顶部栏 -->
+        <header class="top-bar">
+            <div class="merit-counter">
+                <span class="merit-label">功德:</span>
+                <span class="merit-value" id="merit-display">0.00</span>
+            </div>
+            <div class="top-buttons">
+                <button class="icon-btn" id="settings-btn" title="设置">⚙️</button>
+                <button class="icon-btn" id="achievements-btn" title="业力殿堂">🏆</button>
+            </div>
+        </header>
+
+        <!-- 主页面 -->
+        <main class="main-page" id="main-page">
+            <!-- 木鱼区域 -->
+            <div class="muyu-container">
+                <div class="muyu" id="muyu">
+                    <div class="muyu-inner">
+                        <div class="muyu-body"></div>
+                        <div class="muyu-glow"></div>
+                    </div>
+                </div>
+                <div class="muyu-level" id="muyu-level">LV1 初始木鱼</div>
+                <div class="merit-limit" id="merit-limit">功德上限: 100</div>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="bottom-buttons">
+                <button class="main-btn" id="workshop-btn">🔨 木鱼工坊</button>
+                <button class="main-btn" id="shop-btn">🛒 功德商店</button>
+            </div>
+        </main>
+
+        <!-- 木鱼工坊页面 -->
+        <div class="page workshop-page hidden" id="workshop-page">
+            <h2 class="page-title">🔨 木鱼工坊</h2>
+            <div class="muyu-upgrades" id="muyu-upgrades">
+                <!-- 木鱼升级卡片将通过JS动态生成 -->
+            </div>
+            <button class="back-btn" id="workshop-back">返回</button>
+        </div>
+
+        <!-- 功德商店页面 -->
+        <div class="page shop-page hidden" id="shop-page">
+            <h2 class="page-title">🛒 功德商店</h2>
+            <div class="shop-items" id="shop-items">
+                <!-- 装备卡片将通过JS动态生成 -->
+            </div>
+            <button class="back-btn" id="shop-back">返回</button>
+        </div>
+
+        <!-- 业力殿堂页面 -->
+        <div class="page achievements-page hidden" id="achievements-page">
+            <h2 class="page-title">🏆 业力殿堂</h2>
+            <div class="achievements-list" id="achievements-list">
+                <!-- 成就卡片将通过JS动态生成 -->
+            </div>
+            <button class="back-btn" id="achievements-back">返回</button>
+        </div>
+
+        <!-- 设置面板 -->
+        <div class="modal settings-modal hidden" id="settings-modal">
+            <div class="modal-content">
+                <h3>⚙️ 设置</h3>
+                <div class="settings-options">
+                    <label class="setting-item">
+                        <input type="checkbox" id="effects-toggle" checked>
+                        <span>启用特效</span>
+                    </label>
+                    <label class="setting-item">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span>启用音效</span>
+                    </label>
+                </div>
+                <div class="data-management">
+                    <h4>数据管理</h4>
+                    <button class="data-btn" id="export-btn">导出存档</button>
+                    <button class="data-btn" id="import-btn">导入存档</button>
+                    <button class="data-btn danger" id="reset-btn">重置游戏</button>
+                </div>
+                <div class="ascension-section" id="ascension-section">
+                    <h4>赛博飞升</h4>
+                    <p class="ascension-info">当前轮回: <span id="rebirth-count">0</span></p>
+                    <p class="ascension-bonus">轮回加成: <span id="rebirth-bonus">0%</span></p>
+                    <button class="ascension-btn" id="ascend-btn">飞升重生</button>
+                </div>
+                <button class="close-btn" id="settings-close">关闭</button>
+            </div>
+        </div>
+
+        <!-- 导入存档弹窗 -->
+        <div class="modal import-modal hidden" id="import-modal">
+            <div class="modal-content">
+                <h3>导入存档</h3>
+                <textarea id="import-data" placeholder="请粘贴存档数据..."></textarea>
+                <div class="modal-buttons">
+                    <button class="confirm-btn" id="import-confirm">确认导入</button>
+                    <button class="cancel-btn" id="import-cancel">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 赛博锦鲤 -->
+        <div class="koi-fish hidden" id="koi-fish">🐟</div>
+
+        <!-- 点击飘字容器 -->
+        <div class="floating-text-container" id="floating-text-container"></div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
