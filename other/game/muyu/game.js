@@ -203,18 +203,17 @@ function clickMuyu(event) {
 
 // 创建点击光环
 function createClickRing(event) {
-    const muyu = document.getElementById('muyu');
-    const rect = muyu.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
+    // 使用实际点击位置
+    const x = event.clientX;
+    const y = event.clientY;
+
     const ring = document.createElement('div');
     ring.className = 'click-ring';
-    ring.style.left = (centerX - 100) + 'px';
-    ring.style.top = (centerY - 100) + 'px';
+    ring.style.left = (x - 140) + 'px'; // 140是光环半径
+    ring.style.top = (y - 140) + 'px';
     document.body.appendChild(ring);
-    
-    setTimeout(() => ring.remove(), 600);
+
+    setTimeout(() => ring.remove(), 800);
 }
 
 // 显示飘字效果
