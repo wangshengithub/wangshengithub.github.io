@@ -2,8 +2,8 @@
    赛博木鱼：功德无量Pro - 终极赛博朋克美学
    ======================================== */
 
-/* 引入科技感字体 */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+/* 引入本地字体文件 */
+@import url('fonts/font-face.css');
 
 /* CSS 变量 - 赛博朋克配色方案 */
 :root {
