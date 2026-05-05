@@ -252,17 +252,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="Ollama（推荐）"><a href="#Ollama（推荐）" class="headerlink" title="Ollama（推荐）"></a>Ollama（推荐）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ollama pull wangshen/wsai-heart-pro-exp</span><br><span class="line">ollama run wangshen/wsai-heart-pro-exp</span><br></pre></td></tr></table></figure>
-
-<h3 id="Transformers"><a href="#Transformers" class="headerlink" title="Transformers"></a>Transformers</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelForCausalLM, AutoTokenizer</span><br><span class="line"></span><br><span class="line">model_path = <span class="string">&quot;./&quot;</span></span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(model_path)</span><br><span class="line">model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=<span class="string">&quot;auto&quot;</span>, device_map=<span class="string">&quot;auto&quot;</span>)</span><br><span class="line"></span><br><span class="line">messages = [</span><br><span class="line">    &#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;system&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;你是一个温暖、有共情能力的心理支持助手。&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;我最近心情不太好，感觉压力很大。&quot;</span>&#125;</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">text = tokenizer.apply_chat_template(messages, tokenize=<span class="literal">False</span>, add_generation_prompt=<span class="literal">True</span>)</span><br><span class="line">inputs = tokenizer(text, return_tensors=<span class="string">&quot;pt&quot;</span>).to(model.device)</span><br><span class="line">outputs = model.generate(**inputs, max_new_tokens=<span class="number">512</span>)</span><br><span class="line">response = tokenizer.decode(outputs[<span class="number">0</span>][inputs[<span class="string">&quot;input_ids&quot;</span>].shape[<span class="number">1</span>]:], skip_special_tokens=<span class="literal">True</span>)</span><br><span class="line"><span class="built_in">print</span>(response)</span><br></pre></td></tr></table></figure>
-
-<h2 id="一些说明"><a href="#一些说明" class="headerlink" title="一些说明"></a>一些说明</h2><p>这个版本标注为 <strong>Exp（实验版）</strong>，主要用来验证训练策略和效果，后续会发布 WSAI-Heart-Pro 正式版。使用中如果发现问题，欢迎反馈。</p>
-<p>另外，本模型不能替代专业心理咨询或医疗建议，仅供学习和参考。</p>
-<h2 id="致谢"><a href="#致谢" class="headerlink" title="致谢"></a>致谢</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://github.com/QwenLM">Qwen Team</a> — 提供优秀的 Qwen3.5 基座模型</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/hiyouga/LLaMA-Factory">LlamaFactory</a> — 简洁高效的微调框架</li>
-</ul>
-
+        <p>WSAI-Heart 发布后，我用同样的思路尝试了一个更大的版本。基座模型从 Qwen3.5-0.8B-Base 换成了 Qwen3.5-2B-Base，LoRA 训练层数也从 2 层增加到了 16 层。</p>
       
     </div>
     
@@ -278,6 +268,10 @@
       
       <div class="clearfix"></div>
     </div>
+      
+        <p class="article-more-link">
+          <a  href="/2026/05/05/wsai-heart-pro-exp/#more">阅读全文 >></a>
+        </p>
       
     
   </div>
@@ -654,8 +648,8 @@
 <p>1.有你自己的个人主页。🌐</p>
 <p>2.Have a new personal homepage&#x2F;blog framework. 🛠️</p>
 <p>2.有一个新的个人主页&#x2F;博客模板。🛠️</p>
-<p>Interested parties please send an email to <a href="mailto:&#x33;&#x37;&#54;&#50;&#x33;&#55;&#49;&#x38;&#x34;&#x37;&#64;&#113;&#113;&#46;&#x63;&#111;&#x6d;">3762371847@qq.com</a>. 📧</p>
-<p>有意向者请联系 <a href="mailto:&#51;&#55;&#x36;&#x32;&#x33;&#55;&#49;&#56;&#52;&#x37;&#64;&#113;&#x71;&#46;&#99;&#x6f;&#x6d;"><a href="mailto:&#51;&#x37;&#x36;&#x32;&#51;&#x37;&#49;&#x38;&#x34;&#x37;&#64;&#x71;&#x71;&#x2e;&#x63;&#111;&#109;">3762371847@qq.com</a></a>. 📧</p>
+<p>Interested parties please send an email to <a href="mailto:&#x33;&#55;&#x36;&#50;&#x33;&#x37;&#49;&#56;&#52;&#x37;&#64;&#113;&#x71;&#46;&#99;&#x6f;&#109;">3762371847@qq.com</a>. 📧</p>
+<p>有意向者请联系 <a href="mailto:&#51;&#55;&#x36;&#x32;&#51;&#55;&#49;&#x38;&#x34;&#55;&#x40;&#113;&#113;&#x2e;&#99;&#111;&#109;"><a href="mailto:&#51;&#x37;&#x36;&#x32;&#51;&#x37;&#x31;&#56;&#52;&#55;&#x40;&#x71;&#113;&#46;&#x63;&#111;&#x6d;">3762371847@qq.com</a></a>. 📧</p>
 
       
     </div>
