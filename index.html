@@ -147,7 +147,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/AI/" style="font-size: 20px;">AI</a> <a href="/tags/%E5%91%8A%E7%A4%BA/" style="font-size: 10px;">告示</a> <a href="/tags/%E5%AF%BC%E8%88%AA/" style="font-size: 20px;">导航</a> <a href="/tags/%E7%AE%80%E4%BB%8B/" style="font-size: 10px;">简介</a>
+						<a href="/tags/AI/" style="font-size: 20px;">AI</a> <a href="/tags/%E5%91%8A%E7%A4%BA/" style="font-size: 10px;">告示</a> <a href="/tags/%E5%AF%BC%E8%88%AA/" style="font-size: 15px;">导航</a> <a href="/tags/%E7%AE%80%E4%BB%8B/" style="font-size: 10px;">简介</a>
 					</div>
 				</section>
 				
@@ -222,6 +222,93 @@
 	</div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-breakfastplanner" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2026/05/31/breakfastplanner/" class="article-date">
+  	<time datetime="2026-05-30T16:00:00.000Z" itemprop="datePublished">2026-05-31</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2026/05/31/breakfastplanner/">
+        DeepSeek-V4 只能用来聊天？我把它接入开源项目，解决了「早餐吃什么」的世界性难题
+        
+      </a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前阵子 DeepSeek-V4 系列模型正式发布了，我关注到的不只是参数规模（V4-Pro 总参数 1.6T），还有价格——百万 tokens 输出只要六块钱，输入命中缓存甚至只要两分五。这个调用成本，已经低到可以随便用了。</p>
+<p>我每天早上都在纠结同一个问题：冰箱里的贝果明明还有好几天才过期，但每次都被新买的其他面包挤到最里面，最后放到过期才发现。周末囤的食材，周一早上翻半天找不着，最后还是只能叫外卖。</p>
+<p>于是花了一个周末，基于 DeepSeek-V4 全系列模型（V4-Pro &#x2F; V4-Flash 都支持）做了个小工具——<strong>Breakfast Manager（早餐管理应用）</strong>，现在已经在Github上完整开源。</p>
+<h3 id="接入了-DeepSeek-V4-全系列模型，用来干什么？"><a href="#接入了-DeepSeek-V4-全系列模型，用来干什么？" class="headerlink" title="接入了 DeepSeek-V4 全系列模型，用来干什么？"></a>接入了 DeepSeek-V4 全系列模型，用来干什么？</h3><p>项目里最核心的 AI 能力就是调用 DeepSeek 的 API。用户先在后台填写身体数据：身高、体重、年龄、性别，还可以加上特殊要求，比如示例数据里的“减脂期，高蛋白低碳水”。</p>
+<p>系统会结合你冰箱里现有的食材库存，调用 DeepSeek-V4 模型（默认使用 DeepSeek-V4-Pro）生成个性化的早餐建议。前端用的是流式输出，AI 的回答一个字一个字往外蹦，体验比干等几十秒舒服很多。</p>
+<p><img src="https://pic4.zhimg.com/v2-62c2c13f00d4c90a626c1b6d961eea67_1440w.jpg"></p>
+<p>代码里同时预留了 V4-Pro 和 V4-Flash 的切换入口。如果你只是想随便玩玩，用 V4-Flash 成本几乎为零；如果希望营养建议更细致、逻辑更严谨，切到 V4-Pro 也就多花一两分钱。当然，其他支持OPENAI格式的API也都能接入。</p>
+<h3 id="除了-AI，它还是一个完整的早餐库存管理系统"><a href="#除了-AI，它还是一个完整的早餐库存管理系统" class="headerlink" title="除了 AI，它还是一个完整的早餐库存管理系统"></a>除了 AI，它还是一个完整的早餐库存管理系统</h3><p>只做个套壳的 API 调用网页太没意思了，我把前后端都搭了出来：</p>
+<ul>
+<li><strong>库存管理</strong>：记录冰箱里的每一件早餐食材，支持“盒、袋、个、杯”等多种单位。可以一键消耗或补充库存，库存低于设定值时会自动提醒。</li>
+</ul>
+<p><img src="https://pic1.zhimg.com/v2-6dc516b3181c52e02b1ac49704daffb6_1440w.jpg"></p>
+<ul>
+<li><strong>保质期管理</strong>：设置截止日期，系统会自动标出即将过期或已过期的食材。</li>
+<li><strong>统计仪表盘</strong>：展示总品类、总库存、低库存、即将过期数量，还有近 7 天消耗趋势折线图、品类消耗分布环形图、库存概览柱状图。图表基于 Chart.js 实现，不依赖外网 CDN，速度极快。</li>
+<li><strong>常用模板</strong>：可以把常用的早餐存成模板，不用每次重新填一堆食材信息。</li>
+<li><strong>数据备份与恢复</strong>：一键导出 &#x2F; 导入所有数据为 JSON 文件，换电脑也不怕丢。</li>
+<li><strong>暗色模式 + 中英双语</strong>，一键切换，装逼更有风范。</li>
+</ul>
+<p><img src="https://pic4.zhimg.com/v2-0513f562b459687361921c30f8c89c2b_1440w.jpg"></p>
+<p>技术栈是 Node.js + Express + 原生 JavaScript + Tailwind CSS，数据直接存在本地 JSON 文件里，无需联网数据库，保证数据安全。</p>
+<h3 id="安装命令"><a href="#安装命令" class="headerlink" title="安装命令"></a>安装命令</h3><p>项目托管在 GitHub 上，整套命令如下（Node.js 安装过程略去）：</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git clone https:<span class="comment">//github.com/wangshengithub/breakfast-manager.git</span></span><br><span class="line">cd breakfast-manager</span><br><span class="line">npm install</span><br><span class="line">npm start</span><br></pre></td></tr></table></figure>
+
+<p>启动之后浏览器访问 <code>http://localhost:3000</code> 就可以用了。<br>首次使用需要去 DeepSeek 开放平台申请一个 API Key，然后在网页后台填进去就行。按 V4 现在的定价，你一顿早餐的钱够调几百万次都说少了。</p>
+<h3 id="为什么把它开源？"><a href="#为什么把它开源？" class="headerlink" title="为什么把它开源？"></a>为什么把它开源？</h3><p>一方面是自己觉得确实能解决“冰箱里有东西却不知道吃什么”的痛点，就来分享给大家；另一方面也是希望如果你有兴趣，可以直接看代码学一下 Node.js + Express 的小项目是怎么组织的。如果你也经常为早餐发愁，或者厨房里总有食材放到过期，可以试试这个工具。代码很轻量，没有复杂依赖，运行起来就能用。</p>
+<p>如果这个项目帮你省下了每天早上站在冰箱前纠结的几分钟，或者它的代码解决了你开发中的一些疑问——请在 GitHub 上给我点一个 Star ⭐️！</p>
+<p>这是对我熬夜写代码最大的鼓励。</p>
+<p><a href="https://link.zhihu.com/?target=https://github.com/wangshengithub/breakfast-manager">项目戳这里</a></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li></ul>
+	</div>
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+      
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
   
     <article id="post-wsai-heart-pro" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -710,8 +797,8 @@
 <p>1.有你自己的个人主页。🌐</p>
 <p>2.Have a new personal homepage&#x2F;blog framework. 🛠️</p>
 <p>2.有一个新的个人主页&#x2F;博客模板。🛠️</p>
-<p>Interested parties please send an email to <a href="mailto:&#x33;&#55;&#54;&#x32;&#x33;&#55;&#49;&#x38;&#x34;&#55;&#64;&#113;&#113;&#46;&#99;&#x6f;&#109;">3762371847@qq.com</a>. 📧</p>
-<p>有意向者请联系 <a href="mailto:&#51;&#x37;&#x36;&#50;&#x33;&#55;&#x31;&#56;&#52;&#x37;&#x40;&#113;&#113;&#46;&#99;&#111;&#109;"><a href="mailto:&#x33;&#55;&#54;&#50;&#x33;&#x37;&#49;&#x38;&#x34;&#x37;&#x40;&#113;&#113;&#x2e;&#99;&#x6f;&#x6d;">3762371847@qq.com</a></a>. 📧</p>
+<p>Interested parties please send an email to <a href="mailto:&#x33;&#55;&#54;&#x32;&#x33;&#x37;&#49;&#x38;&#52;&#55;&#64;&#113;&#x71;&#46;&#x63;&#111;&#109;">3762371847@qq.com</a>. 📧</p>
+<p>有意向者请联系 <a href="mailto:&#51;&#55;&#x36;&#x32;&#51;&#55;&#x31;&#x38;&#x34;&#55;&#64;&#113;&#x71;&#46;&#x63;&#111;&#109;"><a href="mailto:&#51;&#x37;&#54;&#50;&#x33;&#55;&#49;&#x38;&#x34;&#x37;&#x40;&#x71;&#113;&#46;&#x63;&#111;&#x6d;">3762371847@qq.com</a></a>. 📧</p>
 
       
     </div>
