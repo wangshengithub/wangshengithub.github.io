@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法 | Wangshen的小站</title>
+
+  <!-- keywords -->
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="静态站点的内容保护是个尴尬的命题。 GitHub Pages、对象存储、CDN——纯静态托管便宜到几乎免费，可它们没有服务端。「想给某个页面加密码、只让特定人看」这个再普通不过的需求，通常意味着得引入后端：一份鉴权服务、一个登录态、可能还有数据库。为了一个密码框，把无状态的静态站点拖回有状态架构，不划算。 StaticShield 换了个思路：把加密下沉到产物本身。用密码把 HTML 加密成一份「">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法">
+<meta property="og:url" content="http://example.com/2026/07/10/staticshield/index.html">
+<meta property="og:site_name" content="Wangshen的小站">
+<meta property="og:description" content="静态站点的内容保护是个尴尬的命题。 GitHub Pages、对象存储、CDN——纯静态托管便宜到几乎免费，可它们没有服务端。「想给某个页面加密码、只让特定人看」这个再普通不过的需求，通常意味着得引入后端：一份鉴权服务、一个登录态、可能还有数据库。为了一个密码框，把无状态的静态站点拖回有状态架构，不划算。 StaticShield 换了个思路：把加密下沉到产物本身。用密码把 HTML 加密成一份「">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-07-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-10T10:30:08.364Z">
+<meta property="article:author" content="wangshen">
+<meta property="article:tag" content="工具">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternative" href="/atom.xml" title="Wangshen的小站" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="other/touxiang.jpg">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<script>
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+  
+<!-- Google Analytics -->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-85415703-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+  
+<script src="//cdn.bootcss.com/require.js/2.3.2/require.min.js"></script>
+
+  
+<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body>
+  <div id="container">
+    <div id="particles-js"></div>
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			
+			<img lazy-src="other/touxiang.jpg" class="js-avatar">
+			
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/"></a></h1>
+		</hgroup>
+
+		
+
+		
+			<div class="switch-btn">
+				<div class="icon">
+					<div class="icon-ctn">
+						<div class="icon-wrap icon-house" data-idx="0">
+							<div class="birdhouse"></div>
+							<div class="birdhouse_holes"></div>
+						</div>
+						<div class="icon-wrap icon-ribbon hide" data-idx="1">
+							<div class="ribbon"></div>
+						</div>
+						
+						<div class="icon-wrap icon-link hide" data-idx="2">
+							<div class="loopback_l"></div>
+							<div class="loopback_r"></div>
+						</div>
+						
+						
+					</div>
+					
+				</div>
+				<div class="tips-box hide">
+					<div class="tips-arrow"></div>
+					<ul class="tips-inner">
+						<li>菜单</li>
+						<li>标签</li>
+						
+						<li>友情链接</li>
+						
+						
+					</ul>
+				</div>
+			</div>
+		
+
+		<div class="switch-area">
+			<div class="switch-wrap">
+				<section class="switch-part switch-part1">
+					<nav class="header-menu">
+						<ul>
+						
+							<li><a href="/">主页</a></li>
+				        
+							<li><a href="/archives">所有文章</a></li>
+				        
+						</ul>
+					</nav>
+					<nav class="header-nav">
+						<div class="social">
+							
+								<a class="github" target="_blank" href="https://github.com/wangshengithub" title="github">github</a>
+					        
+								<a class="qq" target="_blank" href="/3762371847" title="qq">qq</a>
+					        
+						</div>
+					</nav>
+				</section>
+				
+				
+				<section class="switch-part switch-part2">
+					<div class="widget tagcloud" id="js-tagcloud">
+						<a href="/tags/AI/" style="font-size: 20px;">AI</a> <a href="/tags/%E5%91%8A%E7%A4%BA/" style="font-size: 10px;">告示</a> <a href="/tags/%E5%AF%BC%E8%88%AA/" style="font-size: 15px;">导航</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">工具</a> <a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 10px;">游戏</a> <a href="/tags/%E7%AE%80%E4%BB%8B/" style="font-size: 10px;">简介</a>
+					</div>
+				</section>
+				
+				
+				
+				<section class="switch-part switch-part3">
+					<div id="js-friends">
+					
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/wzq.html">五子棋</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/echou.html">恶臭数字论证器（转载）</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/fastarticle.html">文章生成器（转载）</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/pt.html">元素周期表</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/calc.html">网页计算器</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/taiji.html">阴阳太极图</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/daqiqiu.html">打气球</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/time.html">美丽时间</a>
+			        
+			          <a target="_blank" class="main-nav-link switch-friends-link" href="/other/yanhua.html">放烟花</a>
+			        
+			        </div>
+				</section>
+				
+
+				
+			</div>
+		</div>
+	</header>				
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"></div>
+  		<h1 class="header-author js-mobile-header hide"></h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img lazy-src="other/touxiang.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author"></h1>
+			</hgroup>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/archives">所有文章</a></li>
+		        
+		        <div class="clearfix"></div>
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="https://github.com/wangshengithub" title="github">github</a>
+			        
+						<a class="qq" target="_blank" href="/3762371847" title="qq">qq</a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+      <div class="body-wrap"><article id="post-staticshield" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2026/07/10/staticshield/" class="article-date">
+  	<time datetime="2026-07-09T16:00:00.000Z" itemprop="datePublished">2026-07-10</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法
+      
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a></li></ul>
+	</div>
+
+        
+
+        
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>静态站点的内容保护是个尴尬的命题。</p>
+<p>GitHub Pages、对象存储、CDN——纯静态托管便宜到几乎免费，可它们没有服务端。「想给某个页面加密码、只让特定人看」这个再普通不过的需求，通常意味着得引入后端：一份鉴权服务、一个登录态、可能还有数据库。为了一个密码框，把无状态的静态站点拖回有状态架构，不划算。</p>
+<p><strong>StaticShield</strong> 换了个思路：把加密下沉到<strong>产物本身</strong>。用密码把 HTML 加密成一份「自解密页面」，密文与解密逻辑都内嵌在同一个 <code>.html</code> 里；部署照旧是纯静态，访客输入密码后由<strong>浏览器端 WebCrypto</strong> 实时还原。全程零后端。</p>
+<span id="more"></span>
+
+<h2 id="主打：Web-GUI-加密（本地后端）"><a href="#主打：Web-GUI-加密（本地后端）" class="headerlink" title="主打：Web GUI 加密（本地后端）"></a>主打：Web GUI 加密（本地后端）</h2><p>日常加密走图形界面。<code>--gui</code> 会拉起一个仅绑定 <code>127.0.0.1</code> 的本地服务并打开浏览器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node encrypt.js --gui</span><br></pre></td></tr></table></figure>
+
+<p>架构上是「<strong>本地 Node 后端 + 浏览器前端</strong>」，这么设计有一个关键原因：<strong>打包多文件网页需要文件系统访问</strong>，而浏览器在 <code>file://</code> 下出于安全拿不到相对路径资源。所以加密放在本地 Node 端做（能读目录、能 bundle），前端只负责交互与上传——<strong>文件不离开本机</strong>。</p>
+<p>两种模式：</p>
+<ul>
+<li><strong>单文件</strong>：选一个 HTML → 加密下载。</li>
+<li><strong>整个文件夹</strong>：用 <code>webkitdirectory</code> 选网页根目录（<code>index.html</code> + <code>css/</code> + <code>js/</code> + 图片），后端先内联打包再加密，等效于 CLI 的 <code>--bundle</code>。</li>
+</ul>
+<p>底层是 Node <code>http</code> + 异步 WebCrypto（跑在 libuv 线程池），<strong>多个标签、多台设备同时访问可并行加密</strong>，互不阻塞；每请求独立临时目录、无全局可变状态。</p>
+<p>本地服务的安全细节也做了：仅监听 127.0.0.1、Host 头校验（防 DNS rebinding 跨域读取响应）、<code>Content-Type</code> 校验、上传路径沙箱（防 <code>../../</code> 逃逸）、请求体大小上限与不活动超时。</p>
+<h2 id="加密管线：AES-256-PBKDF2-HMAC"><a href="#加密管线：AES-256-PBKDF2-HMAC" class="headerlink" title="加密管线：AES-256 + PBKDF2 + HMAC"></a>加密管线：AES-256 + PBKDF2 + HMAC</h2><p>不是 base64 藏一下，是正经的对称加密组合（Encrypt-then-MAC）：</p>
+<ol>
+<li><strong>密钥派生</strong>：<code>PBKDF2(password, salt, 1,000,000)</code> → 64 字节，前 32 字节作 <code>encKey</code>、后 32 字节作 <code>macKey</code>，加密与签名密钥隔离。</li>
+<li><strong>加密</strong>：<code>AES-256-CBC</code>（随机 IV）加密明文 HTML。</li>
+<li><strong>签名</strong>：<code>HMAC-SHA256(macKey, AAD ‖ iv ‖ salt ‖ ct)</code>，其中 AAD 把 <code>cipher / kdf / iter</code> 等影响派生的元数据一并纳入——<strong>篡改迭代次数降级、或改成天文数字耗尽 CPU 的攻击，会直接验签失败</strong>。</li>
+<li><strong>解密</strong>：先验签、后解密。验签不过即统一报错，<strong>不区分「密码错」与「文件损坏」</strong>，既避免信息泄露，也消除了 padding oracle 攻击面。</li>
+</ol>
+<p>加密端（CLI &#x2F; GUI 后端）与解密端（浏览器）共用同一份 <code>crypto-core.js</code>——基于 <code>globalThis.crypto.subtle</code> 的<strong>同构模块</strong>，Node 18+ 与浏览器跑同一份代码，产物格式一致、单点维护。</p>
+<h2 id="多文件网页：内联打包"><a href="#多文件网页：内联打包" class="headerlink" title="多文件网页：内联打包"></a>多文件网页：内联打包</h2><p><code>--bundle</code>（或 GUI「整个文件夹」）做的事，是把整站压成单个自包含 HTML 再加密：</p>
+<ul>
+<li><code>&lt;link rel=stylesheet&gt;</code> → <code>&lt;style&gt;</code>，递归内联 css 内 <code>@import</code> 与 <code>url()</code></li>
+<li><code>&lt;script src&gt;</code> → 内联 <code>&lt;script&gt;</code>，<strong>严格保持原加载顺序</strong>（依赖序不能乱）</li>
+<li><code>&lt;img / audio / video&gt;.src</code>、<code>poster</code>、<code>srcset</code>、favicon → <code>data:</code> URI</li>
+<li><code>http(s)</code> &#x2F; CDN 绝对 URL 原样保留；相对路径沙箱约束在项目目录树内，防路径遍历</li>
+</ul>
+<p>打包后仍是单 HTML，解密端无需任何改动。</p>
+<h2 id="CLI：给开发者的选项"><a href="#CLI：给开发者的选项" class="headerlink" title="CLI：给开发者的选项"></a>CLI：给开发者的选项</h2><p>GUI 适合一次性操作；需要<strong>脚本化、批量、或接进 CI&#x2F;CD</strong> 时，CLI 更顺手：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打包整站 + 生成 16 位强密码 + 指定输出目录</span></span><br><span class="line">node encrypt.js index.html --bundle --gen-pwd 16 -d ./dist</span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量加密 + SHA-512 + 记住我 7 天</span></span><br><span class="line">node encrypt.js internal/*.html --sha512 --remember 7</span><br><span class="line"></span><br><span class="line"><span class="comment"># 非交互：管道喂密码（CI 友好）</span></span><br><span class="line"><span class="built_in">printf</span> <span class="string">&#x27;%s&#x27;</span> <span class="string">&quot;<span class="variable">$PASSWORD</span>&quot;</span> | node encrypt.js secret.html</span><br></pre></td></tr></table></figure>
+
+<p>参数覆盖：<code>--bundle</code>（打包）、<code>--gen-pwd [n]</code>（CSPRNG 生成强密码，拒绝采样消除模偏差）、<code>--share</code>（生成 <code>#pwd=</code> 自动解密链接）、<code>--sha512</code>、<code>--remember &lt;days&gt;</code>、<code>--hint</code>、<code>--logo</code>、<code>-d</code> 输出目录。<code>-p</code> 缺省则交互式提示输入（不回显，且正确处理 UTF-8 多字节密码的退格）。</p>
+<h2 id="部署：纯静态，随便放"><a href="#部署：纯静态，随便放" class="headerlink" title="部署：纯静态，随便放"></a>部署：纯静态，随便放</h2><p>产物是单个 <code>.html</code>，任何静态托管都行——GitHub Pages、Vercel &#x2F; Netlify、OSS &#x2F; COS &#x2F; S3、Nginx，甚至直接发文件双击打开。无需运行时、无需数据库。唯一要注意：WebCrypto 仅在<strong>安全上下文</strong>可用（<code>https://</code>、<code>localhost</code>、<code>file://</code>），纯 HTTP 部署会提示需 HTTPS。</p>
+<hr>
+<p><strong>安全边界</strong>得说清楚：浏览器端解密意味着密文会下发到客户端，StaticShield 属「门禁式」访问控制（防直接查看 &#x2F; 抓取 &#x2F; 爬虫），不构成对资深逆向者的绝对防护。但作为挡住绝大多数随意访问的一道门，成本几乎为零——零后端、零运行时依赖、一个文件部署。</p>
+<p>适合付费内容预览、内部文档分享、临时私密页面。</p>
+<p>👉 <strong><a target="_blank" rel="noopener" href="https://github.com/wangshengithub/staticshield">GitHub 项目地址 →</a></strong></p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/06/28/zenidle/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">敲电子木鱼，攒赛博功德：我做了个能「飞升成佛」的放置小游戏</div>
+      <strong class="article-nav-caption">&gt;</strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+<div class="ds-share share" data-thread-key="staticshield" data-title="不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法" data-url="http://example.com/2026/07/10/staticshield/"  data-images="other/touxiang.jpg" data-content="不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法">
+    <div class="ds-share-inline">
+      <ul  class="ds-share-icons-16">
+      	<li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+        <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+        <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+        <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+        <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+      </ul>
+      <div class="ds-share-icons-more">
+      </div>
+    </div>
+ </div>
+ 
+
+
+
+
+
+</div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+      <div class="footer-left">
+        &copy; 2026 wangshen
+      </div>
+        <div class="footer-right">
+          <a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/smackgg/hexo-theme-smackdown" target="_blank">Smackdown</a>
+        </div>
+    </div>
+  </div>
+</footer>
+    </div>
+    
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+
+
+<script>
+	var yiliaConfig = {
+		fancybox: true,
+		mathjax: true,
+		animate: true,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: true
+	}
+</script>
+
+<script src="/js/main.js"></script>
+
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js"></script>
+
+
+  </div>
+</body>
+</html>

@@ -147,7 +147,7 @@
 				
 				<section class="switch-part switch-part2">
 					<div class="widget tagcloud" id="js-tagcloud">
-						<a href="/tags/AI/" style="font-size: 20px;">AI</a> <a href="/tags/%E5%91%8A%E7%A4%BA/" style="font-size: 10px;">告示</a> <a href="/tags/%E5%AF%BC%E8%88%AA/" style="font-size: 15px;">导航</a> <a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 10px;">游戏</a> <a href="/tags/%E7%AE%80%E4%BB%8B/" style="font-size: 10px;">简介</a>
+						<a href="/tags/AI/" style="font-size: 20px;">AI</a> <a href="/tags/%E5%91%8A%E7%A4%BA/" style="font-size: 10px;">告示</a> <a href="/tags/%E5%AF%BC%E8%88%AA/" style="font-size: 15px;">导航</a> <a href="/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 10px;">工具</a> <a href="/tags/%E6%B8%B8%E6%88%8F/" style="font-size: 10px;">游戏</a> <a href="/tags/%E7%AE%80%E4%BB%8B/" style="font-size: 10px;">简介</a>
 					</div>
 				</section>
 				
@@ -222,6 +222,70 @@
 	</div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-staticshield" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2026/07/10/staticshield/" class="article-date">
+  	<time datetime="2026-07-09T16:00:00.000Z" itemprop="datePublished">2026-07-10</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2026/07/10/staticshield/">
+        不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法
+        
+      </a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>静态站点的内容保护是个尴尬的命题。</p>
+<p>GitHub Pages、对象存储、CDN——纯静态托管便宜到几乎免费，可它们没有服务端。「想给某个页面加密码、只让特定人看」这个再普通不过的需求，通常意味着得引入后端：一份鉴权服务、一个登录态、可能还有数据库。为了一个密码框，把无状态的静态站点拖回有状态架构，不划算。</p>
+<p><strong>StaticShield</strong> 换了个思路：把加密下沉到<strong>产物本身</strong>。用密码把 HTML 加密成一份「自解密页面」，密文与解密逻辑都内嵌在同一个 <code>.html</code> 里；部署照旧是纯静态，访客输入密码后由<strong>浏览器端 WebCrypto</strong> 实时还原。全程零后端。</p>
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag">工具</a></li></ul>
+	</div>
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+      
+        <p class="article-more-link">
+          <a  href="/2026/07/10/staticshield/#more">阅读全文 >></a>
+        </p>
+      
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
   
     <article id="post-zenidle" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -928,68 +992,6 @@
       
       <div class="clearfix"></div>
     </div>
-      
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-  
-    <article id="post-aboutme" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2025/02/01/aboutme/" class="article-date">
-  	<time datetime="2025-01-31T16:00:00.000Z" itemprop="datePublished">2025-02-01</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2025/02/01/aboutme/">
-        About Me
-        
-      </a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>大家好，我是**✨人见人爱，花见花开，车见车爆胎✨的wangshen**，代词使用<strong>Ta</strong>，下面来爆照啦！📸</p>
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%80%E4%BB%8B/" rel="tag">简介</a></li></ul>
-	</div>
-
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-      
-        <p class="article-more-link">
-          <a  href="/2025/02/01/aboutme/#more">阅读全文 >></a>
-        </p>
       
     
   </div>
