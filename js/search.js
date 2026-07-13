@@ -1,4 +1,3 @@
-// Pixie 本地搜索：fetch /search.xml → 解析 → 输入实时匹配 → 下拉联想
 define([], function(){
   var DATA_URL = '/search.xml';
   var entries = null;
@@ -48,7 +47,6 @@ define([], function(){
       var hit = true;
       for(var j=0; j<kws.length; j++){ if(hay.indexOf(kws[j]) === -1){ hit = false; break; } }
       if(!hit) continue;
-      // snippet：第一个关键词附近的正文片段
       var snippet = '';
       for(var k=0; k<kws.length; k++){
         var pos = e.content.toLowerCase().indexOf(kws[k]);

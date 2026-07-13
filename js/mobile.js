@@ -3,13 +3,11 @@ define([], function(){
 	var $tag, $toys;
 	var ctn, basicwrap;
 
-	// 从 PC 左栏复制内容到移动端抽屉
 	var combine = function(){
 		if($tag){ document.getElementById("js-mobile-tagcloud").innerHTML = $tag.innerHTML; }
 		if($toys){ document.getElementById("js-mobile-toys").innerHTML = $toys.innerHTML; }
 	};
 
-	// 渲染抽屉 DOM（高度交给 CSS：#viewer 全屏 fixed，#viewer-box height:100%）
 	var renderDOM = function(){
 		var $viewer = document.createElement("div");
 		$viewer.id = "viewer";
@@ -24,18 +22,16 @@ define([], function(){
 	};
 
 	var show = function(){
-		var viewer = document.getElementById("viewer");
-		viewer.className = "";                                // 显示遮罩
-		basicwrap.className = "";                             // 确保从滑出态开始
+		document.getElementById("viewer").className = "";
+		basicwrap.className = "";
 		_isShow = true;
-		setTimeout(function(){ basicwrap.className = "anm-swipe"; }, 20);  // 触发滑入动画
+		setTimeout(function(){ basicwrap.className = "anm-swipe"; }, 20);
 	};
 
 	var hide = function(){
 		if(!_isShow) return;
 		_isShow = false;
-		basicwrap.className = "";                             // 移除 anm-swipe，滑回
-		// 兜底：动画结束后隐藏遮罩（不依赖 transitionend）
+		basicwrap.className = "";
 		setTimeout(function(){
 			var v = document.getElementById("viewer");
 			if(v && !_isShow){ v.className = "hide"; }
@@ -43,33 +39,27 @@ define([], function(){
 	};
 
 	var bindDOM = function(){
-		// 滑动结束隐藏遮罩（标准 transitionend + webkit 兜底）
 		var onTransEnd = function(){
 			if(!_isShow){ document.getElementById("viewer").className = "hide"; }
 		};
 		basicwrap.addEventListener("transitionend", onTransEnd, false);
 		basicwrap.addEventListener("webkitTransitionEnd", onTransEnd, false);
 
-		// slider-trigger：点开关（toggle）
 		ctn.addEventListener("click", function(e){
 			e.stopPropagation();
 			_isShow ? hide() : show();
 		}, false);
 
-		// 点抽屉右侧空白关闭
 		var $right = document.getElementsByClassName("viewer-box-r")[0];
 		if($right){ $right.addEventListener("click", function(){ hide(); }, false); }
 
-		// 点关闭按钮 ×
 		var $close = document.getElementById("viewer-close");
 		if($close){ $close.addEventListener("click", function(){ hide(); }, false); }
 
-		// Esc 关闭
 		document.addEventListener("keydown", function(e){
 			if(e.key === "Escape" && _isShow){ hide(); }
 		}, false);
 
-		// 顶部 overlay 滚动 fixed + 作者名回顶
 		var $overlay = $("#mobile-nav .overlay");
 		var $header = $(".js-mobile-header");
 		window.onscroll = function(){

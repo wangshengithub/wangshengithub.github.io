@@ -263,7 +263,7 @@ a {
 @media screen and (max-width: 800px) {
   html,
   body {
-    overflow-x: hidden; /* / 跳出嵌套；html+body 都禁止横向滚动 */
+    overflow-x: hidden;
   }
   #container .left-col {
     display: none;
@@ -293,7 +293,7 @@ a {
   }
   #container .overlay .slider-trigger:before {
     color: #ddd;
-    content: "\f00b"; /* FA6 bars */
+    content: "\f00b";
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
     font-size: 20px;
@@ -342,7 +342,7 @@ a {
   }
   #container .article .article-title {
     font-size: 18px;
-    max-width: 100%; /* 原 max-width:185px bug，已修复 */
+    max-width: 100%;
     display: block;
     margin: 0;
   }
@@ -350,7 +350,7 @@ a {
     width: auto;
     height: 30px;
     margin-top: -5px;
-    position: relative; /* 原 ralative 拼写错误，已修复 */
+    position: relative;
   }
   #container .article .article-meta .article-date {
     font-size: 12px;
@@ -987,7 +987,6 @@ tag-count {
   padding-left: 30px;
 /* 行内代码：统一为代码块风格（去掉刺眼红底），略浅以区分块级 */
 /* 标题层级：橙 → 浅橙 → 浅黄白 → 白，逐级递减 */
-/* 代码块：修正原 10px 字号 bug，统一 Dracula 背景（token 配色见 highlight.styl）*/
 /* 表格：深色风格（原浅色表头在深色主题里突兀）*/
 }
 .article-entry p {
@@ -1946,7 +1945,7 @@ tag-count {
 .article-category:before {
   float: left;
   color: #999;
-  content: "\f02d"; /* FA6 book */
+  content: "\f02d";
   font: 900 16px "Font Awesome 6 Free";
   margin-right: 10px;
   margin-top: 9px;
@@ -1963,7 +1962,7 @@ tag-count {
 .article-pop-out:before {
   float: left;
   color: #999;
-  content: "\f08d"; /* FA6 thumb-tack（置顶）*/
+  content: "\f08d";
   font: 900 16px "Font Awesome 6 Free";
   margin-right: 10px;
   margin-top: 9px;
@@ -2229,7 +2228,6 @@ tag-count {
   padding-bottom: 14px;
   margin-bottom: 6px;
 /* 标签云：复用 PC 的 .tagcloud a 胶囊样式 + color1-5 + tag-count 暗色背景（不覆盖）*/
-/* 小玩意儿：卡片样式（/#js-mobile-toys 跳出嵌套，匹配 append 到 body 的抽屉）*/
 }
 #viewer-box .viewer-box-l .viewer-div:last-child {
   border-bottom: none;
