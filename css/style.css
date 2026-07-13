@@ -228,9 +228,9 @@ a {
   -ms-transition: all 0.2s ease-in;
   transition: all 0.2s ease-in;
   opacity: 0.8;
-  top: 10px;
+  top: 20px;
   left: 10px;
-  bottom: 10px;
+  bottom: 20px;
   -webkit-box-shadow: 0px 0px 30px #000;
   -moz-box-shadow: 0px 0px 30px #000;
   -ms-box-shadow: 0px 0px 30px #000;
@@ -249,7 +249,8 @@ a {
   text-align: center;
   margin: 30px auto;
   max-height: calc(100% - 60px);
-  padding-top: 30px; /* 头像上方留空间，避免 box-shadow 被 overflow 裁剪 */
+  padding-top: 30px;
+  padding-bottom: 30px;
   overflow-y: auto;
 }
 #container .mid-col {
