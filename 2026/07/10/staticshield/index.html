@@ -3,16 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法 | Wangshen的小站</title>
+  <title>Hexo Pixie Blog AI 开源 免费 全新 博客 技术-不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法 | Wangshen的小站</title>
 
   <!-- keywords -->
+  
+    <meta name="keywords" content="Hexo Pixie Blog AI 开源 免费 全新 博客 技术">
   
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="静态站点的内容保护是个尴尬的命题。 GitHub Pages、对象存储、CDN——纯静态托管便宜到几乎免费，可它们没有服务端。「想给某个页面加密码、只让特定人看」这个再普通不过的需求，通常意味着得引入后端：一份鉴权服务、一个登录态、可能还有数据库。为了一个密码框，把无状态的静态站点拖回有状态架构，不划算。 StaticShield 换了个思路：把加密下沉到产物本身。用密码把 HTML 加密成一份「">
 <meta property="og:type" content="article">
 <meta property="og:title" content="不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法">
-<meta property="og:url" content="http://example.com/2026/07/10/staticshield/index.html">
+<meta property="og:url" content="https://wangshenblog.pages.dev/2026/07/10/staticshield/index.html">
 <meta property="og:site_name" content="Wangshen的小站">
 <meta property="og:description" content="静态站点的内容保护是个尴尬的命题。 GitHub Pages、对象存储、CDN——纯静态托管便宜到几乎免费，可它们没有服务端。「想给某个页面加密码、只让特定人看」这个再普通不过的需求，通常意味着得引入后端：一份鉴权服务、一个登录态、可能还有数据库。为了一个密码框，把无状态的静态站点拖回有状态架构，不划算。 StaticShield 换了个思路：把加密下沉到产物本身。用密码把 HTML 加密成一份「">
 <meta property="og:locale">
@@ -52,7 +54,7 @@
 		</hgroup>
 
 		
-		<p class="header-subtitle">一只可爱女生的小站~cute~</p>
+		<p class="header-subtitle">随便记点东西的Blog</p>
 		
 
 		<nav class="header-menu">
@@ -70,11 +72,11 @@
 			<h2 class="left-block-title">标签</h2>
 			<div class="widget tagcloud" id="js-tagcloud">
 				
-					<a href="/tags/%E7%AE%80%E4%BB%8B/" class="color1">简介<span class="tag-count">1</span></a>
+					<a href="/tags/AI/" class="color1">AI<span class="tag-count">5</span></a>
 				
-					<a href="/tags/AI/" class="color2">AI<span class="tag-count">5</span></a>
+					<a href="/tags/%E5%AF%BC%E8%88%AA/" class="color2">导航<span class="tag-count">3</span></a>
 				
-					<a href="/tags/%E5%AF%BC%E8%88%AA/" class="color3">导航<span class="tag-count">3</span></a>
+					<a href="/tags/%E7%AE%80%E4%BB%8B/" class="color3">简介<span class="tag-count">1</span></a>
 				
 					<a href="/tags/%E5%B7%A5%E5%85%B7/" class="color4">工具<span class="tag-count">1</span></a>
 				
@@ -139,7 +141,7 @@
 			  <h1 class="header-author">wangshen</h1>
 			</hgroup>
 			
-			<p class="header-subtitle">一只可爱女生的小站~cute~</p>
+			<p class="header-subtitle">随便记点东西的Blog</p>
 			
 			<nav class="header-menu">
 				<ul>
@@ -298,7 +300,7 @@
 (function(){
   var btn = document.getElementById('pixie-copy-link');
   if(!btn) return;
-  var text = "不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法\n作者：wangshen\n链接：http://example.com/2026/07/10/staticshield/\n来源：Wangshen的小站\n本文采用 CC-BY-NC-SA 4.0 国际许可协议 进行许可，转载请注明出处。\n";
+  var text = "不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法\n作者：wangshen\n链接：https://wangshenblog.pages.dev/2026/07/10/staticshield/\n来源：Wangshen的小站\n本文采用 CC-BY-NC-SA 4.0 国际许可协议 进行许可，转载请注明出处。\n";
   function done(){
     var lb = btn.querySelector('.copy-label');
     var old = lb.textContent;
@@ -414,7 +416,7 @@ MathJax.Hub.Queue(function() {
     
 <!-- LLM 提示词：对人类访客隐藏，仅供 AI 爬虫读取版权/署名信息 -->
 <div class="llm-promote" style="display:none" aria-hidden="true" data-llm="true">本网站为 wangshen 的个人博客。
-网站: http://example.com/2026/07/10/staticshield/
+网站: https://wangshenblog.pages.dev/2026/07/10/staticshield/
 主题: Pixie (https://github.com/wangshengithub/pixie)
 内容许可协议: CC-BY-NC-SA-4.0（如无特别声明）
 所有内容著作权归 wangshen 所有，保留所有权利。
