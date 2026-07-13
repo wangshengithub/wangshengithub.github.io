@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+  
+    
+    <entry>
+      <title>不用后端鉴权，也能给静态站点加密：StaticShield 的设计与用法</title>
+      <link href="/2026/07/10/staticshield/"/>
+      <url>/2026/07/10/staticshield/</url>
+      
+        <content type="html"><![CDATA[<p>静态站点的内容保护是个尴尬的命题。</p><p>GitHub Pages、对象存储、CDN——纯静态托管便宜到几乎免费，可它们没有服务端。「想给某个页面加密码、只让特定人看」这个再普通不过的需求，通常意味着得引入后端：一份鉴权服务、一个登录态、可能还有数据库。为了一个密码框，把无状态的静态站点拖回有状态架构，不划算。</p><p><strong>StaticShield</strong> 换了个思路：把加密下沉到<strong>产物本身</strong>。用密码把 HTML 加密成一份「自解密页面」，密文与解密逻辑都内嵌在同一个 <code>.html</code> 里；部署照旧是纯静态，访客输入密码后由<strong>浏览器端 WebCrypto</strong> 实时还原。全程零后端。</p><span id="more"></span><h2 id="主打：Web-GUI-加密（本地后端）"><a href="#主打：Web-GUI-加密（本地后端）" class="headerlink" title="主打：Web GUI 加密（本地后端）"></a>主打：Web GUI 加密（本地后端）</h2><p>日常加密走图形界面。<code>--gui</code> 会拉起一个仅绑定 <code>127.0.0.1</code> 的本地服务并打开浏览器：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">node encrypt.js --gui</span><br></pre></td></tr></table></figure><p>架构上是「<strong>本地 Node 后端 + 浏览器前端</strong>」，这么设计有一个关键原因：<strong>打包多文件网页需要文件系统访问</strong>，而浏览器在 <code>file://</code> 下出于安全拿不到相对路径资源。所以加密放在本地 Node 端做（能读目录、能 bundle），前端只负责交互与上传——<strong>文件不离开本机</strong>。</p><p>两种模式：</p><ul><li><strong>单文件</strong>：选一个 HTML → 加密下载。</li><li><strong>整个文件夹</strong>：用 <code>webkitdirectory</code> 选网页根目录（<code>index.html</code> + <code>css/</code> + <code>js/</code> + 图片），后端先内联打包再加密，等效于 CLI 的 <code>--bundle</code>。</li></ul><p>底层是 Node <code>http</code> + 异步 WebCrypto（跑在 libuv 线程池），<strong>多个标签、多台设备同时访问可并行加密</strong>，互不阻塞；每请求独立临时目录、无全局可变状态。</p><p>本地服务的安全细节也做了：仅监听 127.0.0.1、Host 头校验（防 DNS rebinding 跨域读取响应）、<code>Content-Type</code> 校验、上传路径沙箱（防 <code>../../</code> 逃逸）、请求体大小上限与不活动超时。</p><h2 id="加密管线：AES-256-PBKDF2-HMAC"><a href="#加密管线：AES-256-PBKDF2-HMAC" class="headerlink" title="加密管线：AES-256 + PBKDF2 + HMAC"></a>加密管线：AES-256 + PBKDF2 + HMAC</h2><p>不是 base64 藏一下，是正经的对称加密组合（Encrypt-then-MAC）：</p><ol><li><strong>密钥派生</strong>：<code>PBKDF2(password, salt, 1,000,000)</code> → 64 字节，前 32 字节作 <code>encKey</code>、后 32 字节作 <code>macKey</code>，加密与签名密钥隔离。</li><li><strong>加密</strong>：<code>AES-256-CBC</code>（随机 IV）加密明文 HTML。</li><li><strong>签名</strong>：<code>HMAC-SHA256(macKey, AAD ‖ iv ‖ salt ‖ ct)</code>，其中 AAD 把 <code>cipher / kdf / iter</code> 等影响派生的元数据一并纳入——<strong>篡改迭代次数降级、或改成天文数字耗尽 CPU 的攻击，会直接验签失败</strong>。</li><li><strong>解密</strong>：先验签、后解密。验签不过即统一报错，<strong>不区分「密码错」与「文件损坏」</strong>，既避免信息泄露，也消除了 padding oracle 攻击面。</li></ol><p>加密端（CLI &#x2F; GUI 后端）与解密端（浏览器）共用同一份 <code>crypto-core.js</code>——基于 <code>globalThis.crypto.subtle</code> 的<strong>同构模块</strong>，Node 18+ 与浏览器跑同一份代码，产物格式一致、单点维护。</p><h2 id="多文件网页：内联打包"><a href="#多文件网页：内联打包" class="headerlink" title="多文件网页：内联打包"></a>多文件网页：内联打包</h2><p><code>--bundle</code>（或 GUI「整个文件夹」）做的事，是把整站压成单个自包含 HTML 再加密：</p><ul><li><code>&lt;link rel=stylesheet&gt;</code> → <code>&lt;style&gt;</code>，递归内联 css 内 <code>@import</code> 与 <code>url()</code></li><li><code>&lt;script src&gt;</code> → 内联 <code>&lt;script&gt;</code>，<strong>严格保持原加载顺序</strong>（依赖序不能乱）</li><li><code>&lt;img / audio / video&gt;.src</code>、<code>poster</code>、<code>srcset</code>、favicon → <code>data:</code> URI</li><li><code>http(s)</code> &#x2F; CDN 绝对 URL 原样保留；相对路径沙箱约束在项目目录树内，防路径遍历</li></ul><p>打包后仍是单 HTML，解密端无需任何改动。</p><h2 id="CLI：给开发者的选项"><a href="#CLI：给开发者的选项" class="headerlink" title="CLI：给开发者的选项"></a>CLI：给开发者的选项</h2><p>GUI 适合一次性操作；需要<strong>脚本化、批量、或接进 CI&#x2F;CD</strong> 时，CLI 更顺手：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 打包整站 + 生成 16 位强密码 + 指定输出目录</span></span><br><span class="line">node encrypt.js index.html --bundle --gen-pwd 16 -d ./dist</span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量加密 + SHA-512 + 记住我 7 天</span></span><br><span class="line">node encrypt.js internal/*.html --sha512 --remember 7</span><br><span class="line"></span><br><span class="line"><span class="comment"># 非交互：管道喂密码（CI 友好）</span></span><br><span class="line"><span class="built_in">printf</span> <span class="string">&#x27;%s&#x27;</span> <span class="string">&quot;<span class="variable">$PASSWORD</span>&quot;</span> | node encrypt.js secret.html</span><br></pre></td></tr></table></figure><p>参数覆盖：<code>--bundle</code>（打包）、<code>--gen-pwd [n]</code>（CSPRNG 生成强密码，拒绝采样消除模偏差）、<code>--share</code>（生成 <code>#pwd=</code> 自动解密链接）、<code>--sha512</code>、<code>--remember &lt;days&gt;</code>、<code>--hint</code>、<code>--logo</code>、<code>-d</code> 输出目录。<code>-p</code> 缺省则交互式提示输入（不回显，且正确处理 UTF-8 多字节密码的退格）。</p><h2 id="部署：纯静态，随便放"><a href="#部署：纯静态，随便放" class="headerlink" title="部署：纯静态，随便放"></a>部署：纯静态，随便放</h2><p>产物是单个 <code>.html</code>，任何静态托管都行——GitHub Pages、Vercel &#x2F; Netlify、OSS &#x2F; COS &#x2F; S3、Nginx，甚至直接发文件双击打开。无需运行时、无需数据库。唯一要注意：WebCrypto 仅在<strong>安全上下文</strong>可用（<code>https://</code>、<code>localhost</code>、<code>file://</code>），纯 HTTP 部署会提示需 HTTPS。</p><hr><p><strong>安全边界</strong>得说清楚：浏览器端解密意味着密文会下发到客户端，StaticShield 属「门禁式」访问控制（防直接查看 &#x2F; 抓取 &#x2F; 爬虫），不构成对资深逆向者的绝对防护。但作为挡住绝大多数随意访问的一道门，成本几乎为零——零后端、零运行时依赖、一个文件部署。</p><p>适合付费内容预览、内部文档分享、临时私密页面。</p><p>👉 <strong><a href="https://github.com/wangshengithub/staticshield">GitHub 项目地址 →</a></strong></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 工具 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>敲电子木鱼，攒赛博功德：我做了个能「飞升成佛」的放置小游戏</title>
+      <link href="/2026/06/28/zenidle/"/>
+      <url>/2026/06/28/zenidle/</url>
+      
+        <content type="html"><![CDATA[<p>每天上班如上坟，下班躺平如咸鱼。焦虑的时候，总想找点东西敲一敲。</p><p>以前的人敲木鱼是为了静心，现在人没木鱼就敲键盘，于是我做了一个<strong>赛博木鱼</strong>：在手机和电脑上点一点，攒的不是烦恼，是赛博功德。</p><p>它叫 <strong>「赛博木鱼：功德无量Pro」</strong>（英文名 ZenIdle）——一个放置类（idle）小游戏，点一下功德 +1，挂着也会自己涨，最终目标是<strong>飞升成佛、功德圆满</strong>。</p><span id="more"></span><h2 id="上手只要一秒：点就完事了"><a href="#上手只要一秒：点就完事了" class="headerlink" title="上手只要一秒：点就完事了"></a>上手只要一秒：点就完事了</h2><p>打开页面，屏幕中间一条木鱼🐟，点一下，功德 +1，配一声清脆的「笃」。</p><p>就这么简单。但点着点着，你会发现停不下来。</p><ul><li><strong>连击系统</strong>：连续点击进入「心流」「悟道」「破界」「天人合一」等境界，连击越高功德倍率越大，最高 10 倍。手速越快，功德涨得越猛。</li><li><strong>自动修行</strong>：木鱼升到 LV3 就解锁自动敲击，<strong>你挂机、你睡觉、你关掉网页，功德都在涨</strong>。放置游戏的快乐，就是回来一看收获满满。</li><li><strong>6 级木鱼进化</strong>：从朴素的🐟，到霓虹木鱼、数据流木鱼、量子木鱼、奇点木鱼，最后是发光的♾️。每升一级，功德上限翻几番。</li></ul><h2 id="三条路，随你怎么修"><a href="#三条路，随你怎么修" class="headerlink" title="三条路，随你怎么修"></a>三条路，随你怎么修</h2><p>中后期解锁三条技能路线，想怎么玩怎么混搭：</p><ul><li>🧘 <strong>禅定之路</strong>：自动修行速度拉满，挂机党首选。</li><li>⚔️ <strong>苦修之路</strong>：点击功德、连击倍率、暴击全加，手敲党的浪漫。</li><li>🔮 <strong>悟道之路</strong>：能预览、跳过、手动触发随机事件，策略党的选择。</li></ul><p>三条路全点满还能触发<strong>协同加成</strong>，功德获取最高 +500%。</p><h2 id="功德够了？飞升吧"><a href="#功德够了？飞升吧" class="headerlink" title="功德够了？飞升吧"></a>功德够了？飞升吧</h2><p>攒够功德可以<strong>飞升</strong>：等级、技能全部重置，但换回永久加成，下一轮更强更快。</p><ul><li>第 1 次飞升 → 解锁<strong>研究系统</strong>。</li><li>第 2 次飞升 → 多一个研究槽位，双线并行。</li><li><strong>第 3 次飞升 → 功德圆满，通关游戏！</strong></li></ul><p>结局动画我花了点心思（先不告诉你），算是对玩到最后的你，一个小小的仪式感。</p><h2 id="冷不丁冒出来的小惊喜"><a href="#冷不丁冒出来的小惊喜" class="headerlink" title="冷不丁冒出来的小惊喜"></a>冷不丁冒出来的小惊喜</h2><ul><li><p>🎲 <strong>7 种随机事件</strong>：赛博锦鲤游过（快点击！）、赛博菩萨降临（双倍功德）、功德雨从天而降……玩着玩着就来一个。</p></li><li><p>🎨 <strong>32 个皮肤</strong>：4 种稀有度，收藏越多功德加成越高，还能换着花样式敲。</p></li><li><p>📜 <strong>每日赛博签语</strong>：「赛博佛学」签文，每天一签，句句扎心：</p><blockquote><p>「Ctrl+C 是学习，Ctrl+V 是传承」<br>「git push –force，强推即是执念」<br>「NullPointerException 即是空，空即是异常」</p></blockquote></li><li><p>✅ <strong>每日任务 + 成就</strong>：48+ 成就、连胜奖励，总有点小目标推着你敲。</p></li></ul><h2 id="随时随地，敲两下"><a href="#随时随地，敲两下" class="headerlink" title="随时随地，敲两下"></a>随时随地，敲两下</h2><ul><li><strong>不用下载</strong>：浏览器打开就能玩，手机电脑都顺手。</li><li><strong>不怕丢档</strong>：自动存档，还支持导出 &#x2F; 导入存档码，换设备也不怕。</li></ul><hr><p>生活已经够累了，不如来敲两下赛博木鱼，攒点赛博功德，哄自己开心一下。</p><p>功德圆满的那一刻，说不定你也就放下了点什么。🧘</p><p>👉 <strong><a href="https://zenidle.pages.dev/">立即去试玩 →</a></strong></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 游戏 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>我用 AI 自己写了一部 78 万字的网文，结果却出乎我的意料</title>
+      <link href="/2026/06/07/ai-farm-novel/"/>
+      <url>/2026/06/07/ai-farm-novel/</url>
+      
+        <content type="html"><![CDATA[<p>最近我做了一个实验，用了 Claude Code ，让 AI 自己从头到尾生成了一部都市种田网文。从建项目、写总纲和详细大纲，到逐章生成正文，全程 AI 独立完成。我不做任何人工修改，包括那些明显的错误和别扭的地方，全部原样保留。</p><p>结果就是这本书：<strong>《我在城市种田养鸡》——320 章，7 卷，约 78 万字</strong>。</p><p><a href="https://wangshenblog.pages.dev/other/ai-farm-novel.pdf">小说点这里直接看</a></p><p>小说的设定本身挺典型：38 岁失业男青年方远背了一身债，突然获得「农场系统」，在自家楼顶种出品质逆天的灵植，被人质疑、自证、打脸，最后建立城市农业帝国、收获爱情。</p><p>但接下来我要说的，才是这个项目的重点。</p><hr><h3 id="实验是怎么做的"><a href="#实验是怎么做的" class="headerlink" title="实验是怎么做的"></a>实验是怎么做的</h3><p>我先让 AI 自己生成了完整的大纲体系：总纲（全书概览、卷划分、核心设定）、爽点规划（核心卖点与爽点密度安排），以及 7 卷各一份的详细大纲、节拍表和时间线表。然后让 AI 依照这个自己生成的大纲体系逐章生成正文。</p><p><strong>约 78 万字，320 章，平均每章约 2437.5 字。</strong></p><p>这个过程里我完全退出，只负责看。</p><h3 id="翻车实录：AI-写长文到底哪里不行"><a href="#翻车实录：AI-写长文到底哪里不行" class="headerlink" title="翻车实录：AI 写长文到底哪里不行"></a>翻车实录：AI 写长文到底哪里不行</h3><ol><li>碎片化水文</li></ol><p>AI 一旦不知道该写什么，就会开始写水文。</p><blockquote><p>【第一……浇水。】</p><p>系统说。</p><p>【幼苗期……保持土壤湿润。】</p><p>【但不能积水。】</p><p>【每天早晚……各浇水一次。】</p><p>【早上……日出前。】</p><p>【晚上……日落后。】</p><p>【浇水量……要适中。】</p><p>【土壤表面湿润……即可。】</p><p>——第 50 章</p></blockquote><p>系统用七八条短句把“适量浇水”说了个遍，就是单纯的水字数，严重影响阅读体验。</p><ol start="2"><li>非主要人物的NPC 千人一面</li></ol><blockquote><p>群聊场景里，角色之间的区分度几乎为零：</p><p>李敏：“天啊，长得好快！才4天就这么大了！”</p><p>王强：“方远，你真专业！每天都记录！”</p><p>张婷：“嫩绿色的叶子，好治愈！”</p><p>陈静：“期待收获！”</p><p>周梅：“方远辛苦了！”</p><p>赵敏：“方远，你真用心！”</p><p>——第 50 章</p></blockquote><p>全部是人类看到植物长得好的标准反应模板。</p><ol start="3"><li>系统人设反复横跳</li></ol><p>一个有固定身份和人格的角色，在 AI 笔下变成了“薛定谔的系统”：<br>第 50 章，系统用“【】”加省略号说话</p><blockquote><p>【宿主。】系统的声音响起。【恭喜你。】</p></blockquote><p>第 75 章，系统突然变成正常对话引号</p><blockquote><p>“检测完成，”系统的声音里带着一丝惊讶，”宿主，变异体的营养成分比我们预想的还要好。”</p></blockquote><p>第 125 章，系统又变成“【系统：】”的格式</p><blockquote><p>【系统统：宿主，你犹豫什么？】</p></blockquote><p>第 175 章，两种风格混着用</p><blockquote><p>【早上好，方远。】 &#x2F; 系统说。“趋势向好。”</p></blockquote><p>同一个角色，AI 写了 100 章之后，连它的“说话格式”都不记得了。</p><ol start="4"><li>数据灌水</li></ol><blockquote><p>6月12日：</p><p>早上6:30，28颗幼苗，平均株高2.1cm，子叶完全展开。</p><p>中午12:00，阳光很好，温度26度，幼苗状态良好。</p><p>晚上19:00，土壤湿度76%，幼苗挺立，无倒伏现象。</p><p>6月13日：</p><p>早上6:30，平均株高2.5cm，生长稳定。</p><p>中午12:00，温度27度，微风拂过，幼苗随风轻摇。</p><p>晚上19:00，土壤湿度77%，部分幼苗子叶开始微微变大。</p><p>6月14日：</p><p>早上6:30，平均株高3.0cm，生长速度加快。</p><p>中午12:00，温度28度，天气晴朗。</p><p>——第 50 章</p></blockquote><p>这不是科研论文的数据记录，是 AI 在凑字数。当 AI 不知道怎么写成长过程的时候，就指挥列数据。</p><ol start="5"><li>情感表达词库极其贫乏</li></ol><blockquote><p>方远眼睛亮了。——第 50 章（该章出现多次）</p><p>方远深吸一口气。——第 125 章、第 275 章、第300 章</p><p>方远笑了。——第 175 章</p></blockquote><p>一个 78 万字的小说，主角表达情绪的方式就那么三四种。</p><ol start="6"><li>剧情推进极其缓慢</li></ol><p>前 100 章（约 25 万字）的故事时间线：</p><ul><li>第 1 章：方远获得系统，种下种子</li><li>第 10 章：番茄开花</li><li>第 20 章：第一次收获</li><li>第 50 章：还在记录幼苗每天长了几毫米</li><li>第 100 章：农业协会调查员才出场</li></ul><p>100 章、25 万字的时间跨度为 6 个月。 中间被大量的“浇水指南”“数据记录”填充得极为松散。</p><h3 id="README-里没写的：我还设计了一个自动审查-SubAgent"><a href="#README-里没写的：我还设计了一个自动审查-SubAgent" class="headerlink" title="README 里没写的：我还设计了一个自动审查 SubAgent"></a>README 里没写的：我还设计了一个自动审查 SubAgent</h3><p>上面这些翻车，其实我在设计时已经预料到了。所以我给整个系统加了一个“自动审查机制”，这部分在 README 里没有细说。</p><p>设计思路</p><ul><li><strong>主 Agent</strong>：负责逐章生成正文，每次只写一章。</li><li>每章写完后，主 Agent 不碰这一章的内容（防止自己审自己的思维固化）。</li><li>主 Agent 调用一个独立的 SubAgent（审查 Agent），把新章节正文丢给它。</li><li>审查 Agent 的任务：分别根据设定、提示词、文章内容以及自己负责的具体板块（包括consistency-checker、continuity-checker、ooc-checker、reader-pull-checker、high-point-checker、pacing-checker），输出修改建议。</li><li>主 Agent 拿到修改建议，将审查结果落库并修改原始章节。</li></ul><p>关键设计：<strong>非同源上下文，防止污染</strong>。</p><ul><li>主 Agent 有自己的 system prompt 和记忆（大纲、前情提要）。</li><li>审查 Agent 是全新上下文，只看到当前章节 + 一份“审查规则清单”。（当然，审查Agent在运行时也会自动读取大纲和设定文件）</li><li>理论上，这样审查 Agent 不会继承主 Agent 的“写作惯性”，能更客观地挑错。</li></ul><p><strong>实际结果却不尽如人意。</strong></p><p>审查和修改的效果远没有达到预期。那些水文、NPC脸谱化、人设漂移等核心问题，审查 Agent 基本抓不住，哪怕抓住了主 Agent 也因为上下文污染而修改得不好。</p><p>这个失败说明：<strong>当前 LLM 的能力，还不足以胜任长文本的自动质检和修正——哪怕是专门设计的独立 SubAgent，也难以解决长程一致性和风格统一的问题。</strong></p><h3 id="💡-但这反而成了最有价值的地方"><a href="#💡-但这反而成了最有价值的地方" class="headerlink" title="💡 但这反而成了最有价值的地方"></a>💡 但这反而成了最有价值的地方</h3><p>这个项目最大的价值，恰恰来自于 AI 的失败——包括主 Agent 的写作失败，和 SubAgent 的审查失败。</p><ul><li><strong>如果你只是想看小说</strong>： 它确实是一部完整的种田爽文，有系统、有打脸、有感情线、有大结局。写得不算好，但 AI 自己写完的 78 万字，确实挺能读。</li><li><strong>如果你关注 AI 写作工程化</strong>： 给 AI 配一个审查 AI 并没有想象中那么美好。“非同源上下文防污染”听起来高级，但实际执行效果并不理想。</li><li><strong>如果你是做 AI Agent 的</strong>： 长上下文和长程质量是两码事。78 万字暴露出来的问题（水文、人设漂移、审查失灵）不是把模型做大就能解决的，是架构和记忆机制的硬瓶颈。</li></ul><p>这篇文章我刻意不吹 AI 多厉害，也不唱衰 AI 没前途。<strong>这是一个实验的真实结果</strong>。AI 能完成 78 万字的超长程任务，但它会犯的错、它审稿能力的边界，上面都写清楚了。</p><p>如果你对 AI 生成内容、AI Agent 架构、网文创作感兴趣——可以来玩，帮点个 Star，或者提个Issue，让更多人打破“AI迷信”。</p><p><a href="https://github.com/wangshengithub/ai-farm-novel">项目传送门</a></p><p>码字不易，点个赞再走吧。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> AI </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>DeepSeek-V4 只能用来聊天？我把它接入开源项目，解决了「早餐吃什么」的世界性难题</title>
+      <link href="/2026/05/31/breakfastplanner/"/>
+      <url>/2026/05/31/breakfastplanner/</url>
+      
+        <content type="html"><![CDATA[<p>前阵子 DeepSeek-V4 系列模型正式发布了，我关注到的不只是参数规模（V4-Pro 总参数 1.6T），还有价格——百万 tokens 输出只要六块钱，输入命中缓存甚至只要两分五。这个调用成本，已经低到可以随便用了。</p><p>我每天早上都在纠结同一个问题：冰箱里的贝果明明还有好几天才过期，但每次都被新买的其他面包挤到最里面，最后放到过期才发现。周末囤的食材，周一早上翻半天找不着，最后还是只能叫外卖。</p><p>于是花了一个周末，基于 DeepSeek-V4 全系列模型（V4-Pro &#x2F; V4-Flash 都支持）做了个小工具——<strong>Breakfast Manager（早餐管理应用）</strong>，现在已经在Github上完整开源。</p><h3 id="接入了-DeepSeek-V4-全系列模型，用来干什么？"><a href="#接入了-DeepSeek-V4-全系列模型，用来干什么？" class="headerlink" title="接入了 DeepSeek-V4 全系列模型，用来干什么？"></a>接入了 DeepSeek-V4 全系列模型，用来干什么？</h3><p>项目里最核心的 AI 能力就是调用 DeepSeek 的 API。用户先在后台填写身体数据：身高、体重、年龄、性别，还可以加上特殊要求，比如示例数据里的“减脂期，高蛋白低碳水”。</p><p>系统会结合你冰箱里现有的食材库存，调用 DeepSeek-V4 模型（默认使用 DeepSeek-V4-Pro）生成个性化的早餐建议。前端用的是流式输出，AI 的回答一个字一个字往外蹦，体验比干等几十秒舒服很多。</p><p><img src="https://pic4.zhimg.com/v2-62c2c13f00d4c90a626c1b6d961eea67_1440w.jpg"></p><p>代码里同时预留了 V4-Pro 和 V4-Flash 的切换入口。如果你只是想随便玩玩，用 V4-Flash 成本几乎为零；如果希望营养建议更细致、逻辑更严谨，切到 V4-Pro 也就多花一两分钱。当然，其他支持OPENAI格式的API也都能接入。</p><h3 id="除了-AI，它还是一个完整的早餐库存管理系统"><a href="#除了-AI，它还是一个完整的早餐库存管理系统" class="headerlink" title="除了 AI，它还是一个完整的早餐库存管理系统"></a>除了 AI，它还是一个完整的早餐库存管理系统</h3><p>只做个套壳的 API 调用网页太没意思了，我把前后端都搭了出来：</p><ul><li><strong>库存管理</strong>：记录冰箱里的每一件早餐食材，支持“盒、袋、个、杯”等多种单位。可以一键消耗或补充库存，库存低于设定值时会自动提醒。</li></ul><p><img src="https://pic1.zhimg.com/v2-6dc516b3181c52e02b1ac49704daffb6_1440w.jpg"></p><ul><li><strong>保质期管理</strong>：设置截止日期，系统会自动标出即将过期或已过期的食材。</li><li><strong>统计仪表盘</strong>：展示总品类、总库存、低库存、即将过期数量，还有近 7 天消耗趋势折线图、品类消耗分布环形图、库存概览柱状图。图表基于 Chart.js 实现，不依赖外网 CDN，速度极快。</li><li><strong>常用模板</strong>：可以把常用的早餐存成模板，不用每次重新填一堆食材信息。</li><li><strong>数据备份与恢复</strong>：一键导出 &#x2F; 导入所有数据为 JSON 文件，换电脑也不怕丢。</li><li><strong>暗色模式 + 中英双语</strong>，一键切换，装逼更有风范。</li></ul><p><img src="https://pic4.zhimg.com/v2-0513f562b459687361921c30f8c89c2b_1440w.jpg"></p><p>技术栈是 Node.js + Express + 原生 JavaScript + Tailwind CSS，数据直接存在本地 JSON 文件里，无需联网数据库，保证数据安全。</p><h3 id="安装命令"><a href="#安装命令" class="headerlink" title="安装命令"></a>安装命令</h3><p>项目托管在 GitHub 上，整套命令如下（Node.js 安装过程略去）：</p><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git clone https:<span class="comment">//github.com/wangshengithub/breakfast-manager.git</span></span><br><span class="line">cd breakfast-manager</span><br><span class="line">npm install</span><br><span class="line">npm start</span><br></pre></td></tr></table></figure><p>启动之后浏览器访问 <code>http://localhost:3000</code> 就可以用了。<br>首次使用需要去 DeepSeek 开放平台申请一个 API Key，然后在网页后台填进去就行。按 V4 现在的定价，你一顿早餐的钱够调几百万次都说少了。</p><h3 id="为什么把它开源？"><a href="#为什么把它开源？" class="headerlink" title="为什么把它开源？"></a>为什么把它开源？</h3><p>一方面是自己觉得确实能解决“冰箱里有东西却不知道吃什么”的痛点，就来分享给大家；另一方面也是希望如果你有兴趣，可以直接看代码学一下 Node.js + Express 的小项目是怎么组织的。如果你也经常为早餐发愁，或者厨房里总有食材放到过期，可以试试这个工具。代码很轻量，没有复杂依赖，运行起来就能用。</p><p>如果这个项目帮你省下了每天早上站在冰箱前纠结的几分钟，或者它的代码解决了你开发中的一些疑问——请在 GitHub 上给我点一个 Star ⭐️！</p><p>这是对我熬夜写代码最大的鼓励。</p><p><a href="https://link.zhihu.com/?target=https://github.com/wangshengithub/breakfast-manager">项目戳这里</a></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> AI </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>WSAI-Heart-Pro 正式版发布</title>
+      <link href="/2026/05/10/wsai-heart-pro/"/>
+      <url>/2026/05/10/wsai-heart-pro/</url>
+      
+        <content type="html"><![CDATA[<p>WSAI-Heart-Pro 实验版发布后，我又花了一些时间调整训练超参数，现在正式版可以发布了。</p><span id="more"></span><h2 id="和-Pro-Exp-的区别"><a href="#和-Pro-Exp-的区别" class="headerlink" title="和 Pro-Exp 的区别"></a>和 Pro-Exp 的区别</h2><p>Pro 正式版和实验版使用相同的基座模型（Qwen3.5-2B-Base）和 LoRA 层数（16 层），主要区别在于训练超参数的优化。调整后的模型在回复稳定性和对话质量上比实验版有所改善。</p><h2 id="三个版本的对比"><a href="#三个版本的对比" class="headerlink" title="三个版本的对比"></a>三个版本的对比</h2><table><thead><tr><th>对比项</th><th>WSAI-Heart</th><th>Pro-Exp</th><th>Pro</th></tr></thead><tbody><tr><td>基座模型</td><td>Qwen3.5-0.8B-Base</td><td>Qwen3.5-2B-Base</td><td>Qwen3.5-2B-Base</td></tr><tr><td>参数量</td><td>~0.8B</td><td>~2B</td><td>~2B</td></tr><tr><td>LoRA 层数</td><td>2 层</td><td>16 层</td><td>16 层</td></tr><tr><td>模型大小</td><td>~1.6GB</td><td>~4.2GB</td><td>~4.2GB</td></tr><tr><td>超参数</td><td>-</td><td>初版</td><td>优化后</td></tr><tr><td>定位</td><td>入门版</td><td>实验版</td><td>正式版</td></tr></tbody></table><h2 id="训练过程"><a href="#训练过程" class="headerlink" title="训练过程"></a>训练过程</h2><p>和 Pro-Exp 一样，使用 LlamaFactory 框架，全精度 LoRA，心理类对话数据集。16 层 LoRA 覆盖，训练耗时约 5 天多。在 Pro-Exp 的基础上调整了超参数后重新训练。</p><h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><h3 id="回复更稳定"><a href="#回复更稳定" class="headerlink" title="回复更稳定"></a>回复更稳定</h3><p>相比 Pro-Exp，正式版在相同输入下的输出波动更小，回复质量更加一致。</p><h3 id="端侧部署"><a href="#端侧部署" class="headerlink" title="端侧部署"></a>端侧部署</h3><p>模型文件约 4.2GB，大多数个人设备可以运行。完全本地运行，不需要联网。</p><h3 id="多模态能力"><a href="#多模态能力" class="headerlink" title="多模态能力"></a>多模态能力</h3><p>保留了 Qwen3.5 的视觉理解能力，支持图像输入，微调时冻结了 VLM 部分。</p><h3 id="免费开源"><a href="#免费开源" class="headerlink" title="免费开源"></a>免费开源</h3><p>CC BY-NC-SA 4.0 许可证，免费使用和分享。</p><h2 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h2><h3 id="Ollama"><a href="#Ollama" class="headerlink" title="Ollama"></a>Ollama</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ollama pull wangshen/wsai-heart-pro</span><br><span class="line">ollama run wangshen/wsai-heart-pro</span><br></pre></td></tr></table></figure><h3 id="Transformers"><a href="#Transformers" class="headerlink" title="Transformers"></a>Transformers</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelForCausalLM, AutoTokenizer</span><br><span class="line"></span><br><span class="line">model_path = <span class="string">&quot;./&quot;</span></span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(model_path)</span><br><span class="line">model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=<span class="string">&quot;auto&quot;</span>, device_map=<span class="string">&quot;auto&quot;</span>)</span><br><span class="line"></span><br><span class="line">messages = [</span><br><span class="line">    &#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;system&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;你是一个温暖、有共情能力的心理支持助手。&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;我最近心情不太好，感觉压力很大。&quot;</span>&#125;</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">text = tokenizer.apply_chat_template(messages, tokenize=<span class="literal">False</span>, add_generation_prompt=<span class="literal">True</span>)</span><br><span class="line">inputs = tokenizer(text, return_tensors=<span class="string">&quot;pt&quot;</span>).to(model.device)</span><br><span class="line">outputs = model.generate(**inputs, max_new_tokens=<span class="number">512</span>)</span><br><span class="line">response = tokenizer.decode(outputs[<span class="number">0</span>][inputs[<span class="string">&quot;input_ids&quot;</span>].shape[<span class="number">1</span>]:], skip_special_tokens=<span class="literal">True</span>)</span><br><span class="line"><span class="built_in">print</span>(response)</span><br></pre></td></tr></table></figure><h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>本模型不能替代专业心理咨询或医疗建议，仅供学习和参考。</p><h2 id="致谢"><a href="#致谢" class="headerlink" title="致谢"></a>致谢</h2><ul><li><a href="https://github.com/QwenLM">Qwen Team</a> — 提供 Qwen3.5 基座模型</li><li><a href="https://github.com/hiyouga/LLaMA-Factory">LlamaFactory</a> — 微调框架</li></ul>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> AI </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>WSAI-Heart-Pro-Exp：升级到 2B，心理支持模型的新尝试</title>
+      <link href="/2026/05/05/wsai-heart-pro-exp/"/>
+      <url>/2026/05/05/wsai-heart-pro-exp/</url>
+      
+        <content type="html"><![CDATA[<p>WSAI-Heart 发布后，我用同样的思路尝试了一个更大的版本。基座模型从 Qwen3.5-0.8B-Base 换成了 Qwen3.5-2B-Base，LoRA 训练层数也从 2 层增加到了 16 层。</p><span id="more"></span><h2 id="和原版的区别"><a href="#和原版的区别" class="headerlink" title="和原版的区别"></a>和原版的区别</h2><p>原版 WSAI-Heart 受限于基座模型大小和 LoRA 训练层数，回复质量和情绪理解能力都有局限。这次 Pro 实验版主要改了两点：</p><ol><li><strong>基座模型升级</strong>：从 Qwen3.5-0.8B-Base 换到 Qwen3.5-2B-Base，参数量提升到约 2B</li><li><strong>LoRA 训练层扩展</strong>：从 2 层增加到 16 层，训练覆盖率更高</li></ol><table><thead><tr><th>对比项</th><th>WSAI-Heart</th><th>WSAI-Heart-Pro-Exp</th></tr></thead><tbody><tr><td>基座模型</td><td>Qwen3.5-0.8B-Base</td><td>Qwen3.5-2B-Base</td></tr><tr><td>参数量</td><td>~0.8B</td><td>~2B</td></tr><tr><td>LoRA 训练层数</td><td>2 层</td><td>16 层</td></tr><tr><td>模型文件大小</td><td>~1.6GB</td><td>~4.2GB</td></tr></tbody></table><h2 id="训练过程"><a href="#训练过程" class="headerlink" title="训练过程"></a>训练过程</h2><p>这次微调仍然使用 LlamaFactory 框架，采用全精度 LoRA，训练数据集为心理类对话数据。整个训练耗时约 5 天多。LoRA 覆盖 16 层（原版只有 2 层），训练覆盖更充分，模型学到的对话模式也更丰富。</p><h3 id="Loss-曲线"><a href="#Loss-曲线" class="headerlink" title="Loss 曲线"></a>Loss 曲线</h3><p><img src="https://modelscope.cn/models/wangshenai/WSAI-Heart-Pro-Exp/resolve/master/loss.jpg" alt="Loss 曲线"></p><h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><h3 id="对话质量提升"><a href="#对话质量提升" class="headerlink" title="对话质量提升"></a>对话质量提升</h3><p>更大的基座模型加上更多的 LoRA 训练层，回复质量相比原版有所提升，共情和情绪回应也更自然一些。</p><h3 id="仍然支持端侧部署"><a href="#仍然支持端侧部署" class="headerlink" title="仍然支持端侧部署"></a>仍然支持端侧部署</h3><p>模型文件从 1.6GB 增长到约 4.2GB，但个人设备仍然能跑。</p><h3 id="多模态能力"><a href="#多模态能力" class="headerlink" title="多模态能力"></a>多模态能力</h3><p>模型保留了 Qwen3.5 的视觉理解能力，支持图像输入，微调时冻结了 VLM 部分。</p><h3 id="免费开源"><a href="#免费开源" class="headerlink" title="免费开源"></a>免费开源</h3><p>CC BY-NC-SA 4.0 许可证，免费使用和分享。</p><h2 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h2><h3 id="Ollama（推荐）"><a href="#Ollama（推荐）" class="headerlink" title="Ollama（推荐）"></a>Ollama（推荐）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ollama pull wangshen/wsai-heart-pro-exp</span><br><span class="line">ollama run wangshen/wsai-heart-pro-exp</span><br></pre></td></tr></table></figure><h3 id="Transformers"><a href="#Transformers" class="headerlink" title="Transformers"></a>Transformers</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelForCausalLM, AutoTokenizer</span><br><span class="line"></span><br><span class="line">model_path = <span class="string">&quot;./&quot;</span></span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(model_path)</span><br><span class="line">model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=<span class="string">&quot;auto&quot;</span>, device_map=<span class="string">&quot;auto&quot;</span>)</span><br><span class="line"></span><br><span class="line">messages = [</span><br><span class="line">    &#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;system&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;你是一个温暖、有共情能力的心理支持助手。&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;我最近心情不太好，感觉压力很大。&quot;</span>&#125;</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">text = tokenizer.apply_chat_template(messages, tokenize=<span class="literal">False</span>, add_generation_prompt=<span class="literal">True</span>)</span><br><span class="line">inputs = tokenizer(text, return_tensors=<span class="string">&quot;pt&quot;</span>).to(model.device)</span><br><span class="line">outputs = model.generate(**inputs, max_new_tokens=<span class="number">512</span>)</span><br><span class="line">response = tokenizer.decode(outputs[<span class="number">0</span>][inputs[<span class="string">&quot;input_ids&quot;</span>].shape[<span class="number">1</span>]:], skip_special_tokens=<span class="literal">True</span>)</span><br><span class="line"><span class="built_in">print</span>(response)</span><br></pre></td></tr></table></figure><h2 id="一些说明"><a href="#一些说明" class="headerlink" title="一些说明"></a>一些说明</h2><p>这个版本标注为 <strong>Exp（实验版）</strong>，主要用来验证训练策略和效果，后续会发布 WSAI-Heart-Pro 正式版。使用中如果发现问题，欢迎反馈。</p><p>另外，本模型不能替代专业心理咨询或医疗建议，仅供学习和参考。</p><h2 id="致谢"><a href="#致谢" class="headerlink" title="致谢"></a>致谢</h2><ul><li><a href="https://github.com/QwenLM">Qwen Team</a> — 提供 Qwen3.5 基座模型</li><li><a href="https://github.com/hiyouga/LLaMA-Factory">LlamaFactory</a> — 微调框架</li></ul>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> AI </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Wangshen&#39;s Forum | Wangshen论坛 关闭新用户注册的公告</title>
+      <link href="/2026/04/27/forumclose/"/>
+      <url>/2026/04/27/forumclose/</url>
+      
+        <content type="html"><![CDATA[<p>当初建<a href="https://wangshen.flarum.cloud/">这个站</a>，目的非常单纯——给同学一个干净的交流空间，没有广告，没有乱七八糟的东西。我一直尽力维持它，也一直希望大家能在这里好好说话。</p><p>但现在，我必须做出一个不愉快的决定。</p><p><strong>论坛正常用户的数量，已经低于被我封禁的违规账号数量。</strong> 这不是我管理的失败，这是有人存心要把这里毁掉。</p><p>核心问题集中在一个人身上：<strong>刘隽羽</strong>。</p><p>此人在更早之前，就因<strong>大量恶意注册小号、持续发布不良内容</strong>被论坛严厉处理。当时，我<strong>被迫关闭新用户注册很长一段时间</strong>，目的就是阻断他继续作恶的渠道，也给他一个收敛的机会。</p><p>前段时间，基于对整体环境的观察，我重新开放了注册。结果，刘隽羽<strong>不仅没有就此收手，反而迅速再次批量注册小号，继续大肆散布违规不良内容，行为比之前更为猖狂</strong>。这是<strong>再明显不过的恶意累犯</strong>，是<strong>对论坛规则和我本人底线的反复挑衅</strong>。<strong>这种行为的性质极其恶劣，不可原谅。</strong></p><p>作为一个普通初中生，我的主业是学习。维护这个论坛，靠的是我挤出来的休息时间。但现在，每天追查这些垃圾小号、清理不良内容，已经变成了一场毫无意义的消耗战。我付出的精力和成本，远远超过了一个同学交流平台应该承受的范围。</p><p><strong>在此，我正告刘隽羽以及任何打算效仿的人：你们没有机会了。</strong></p><p><strong>所有已发现的刘隽羽相关账号一律永久封禁</strong>，论坛后台处理记录完整保留。<strong>今后再有任何人以类似方式破坏论坛环境，处理方式相同，并且我保留将相关证据直接向学校和当事人家长反映的权利。</strong></p><p>基于上述事实，<strong>我做出以下决定，不再更改</strong>：</p><p><strong>即日起，Wangshen论坛永久关闭新用户注册。</strong></p><p>已注册且无违规行为的同学，使用不受影响，你们依然可以正常发帖交流。</p><p>如果有其他同学确实需要加入，可以通过你们知道的方式<strong>线下联系我</strong>，或<strong>请认识的同学转告我</strong>，<strong>由我在后台手动创建账号</strong>。除此之外，没有任何其他入口。</p><p>这个决定，是有人在反复践踏规则之后逼出来的。论坛本不该是这样子，但它现在只能先这样活下去。</p><p>这个决定很无奈，但也是目前唯一能让论坛活下去的方式。<strong>也请大家好好珍惜自己的账号，不要成为破坏这里的那个人。</strong></p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 导航 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>WSAI-Heart：一个中学生打造的本地心理支持 AI</title>
+      <link href="/2026/04/13/wsai-heart/"/>
+      <url>/2026/04/13/wsai-heart/</url>
+      
+        <content type="html"><![CDATA[<p>心里话想说却不知道该告诉谁，这是很多人都有过的感受。</p><span id="more"></span><p>怕被嘲笑、怕被误解、怕说出来反而更难受。而网上的心理类 App，需要注册、需要联网，对话记录可能被存在服务器上。</p><p>如果有一个 AI，只运行在你自己的电脑上，不联网、不上传数据呢？</p><h2 id="WSAI-Heart-是什么？"><a href="#WSAI-Heart-是什么？" class="headerlink" title="WSAI-Heart 是什么？"></a>WSAI-Heart 是什么？</h2><p><strong>WSAI-Heart</strong> 是我利用课余时间，基于 Qwen3.5-0.8B 全精度 LoRA 微调的一个心理支持对话模型。它专注于情感陪伴和心理疏导，同时也能胜任日常聊天。</p><h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><h3 id="轻量，普通电脑就能跑"><a href="#轻量，普通电脑就能跑" class="headerlink" title="轻量，普通电脑就能跑"></a>轻量，普通电脑就能跑</h3><p>模型约 0.8B 参数，文件大小约 1.6GB。不需要 GPU，纯 CPU 就能推理运行。树莓派、老旧笔记本都能跑起来。</p><h3 id="隐私有保障"><a href="#隐私有保障" class="headerlink" title="隐私有保障"></a>隐私有保障</h3><p>完全本地运行，对话数据<strong>零上传</strong>，所有内容只存在于本地设备上。对于心理倾诉这类涉及个人隐私的场景，本地运行是一个比较重要的特性。</p><h3 id="一行命令，即装即用"><a href="#一行命令，即装即用" class="headerlink" title="一行命令，即装即用"></a>一行命令，即装即用</h3><p>不需要配环境、不需要装 CUDA、不需要折腾依赖。装好 Ollama 后，一行命令就能开始对话：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ollama run wangshen/wsai-heart</span><br></pre></td></tr></table></figure><h3 id="共情能力增强"><a href="#共情能力增强" class="headerlink" title="共情能力增强"></a>共情能力增强</h3><p>基于心理类对话数据集微调，相比原始的 Qwen3.5-0.8B，WSAI-Heart 在情感理解和倾听方面有明显的提升。它不会急着给建议，而是先听你说完。</p><h3 id="多模态能力"><a href="#多模态能力" class="headerlink" title="多模态能力"></a>多模态能力</h3><p>模型保留了 Qwen3.5 基座的视觉理解能力，支持图像输入。可以发一张图让它分析情绪相关的场景。</p><h3 id="完全免费开源"><a href="#完全免费开源" class="headerlink" title="完全免费开源"></a>完全免费开源</h3><p>CC BY-NC-SA 4.0 许可证，免费使用、自由修改、欢迎分享。</p><h2 id="它是怎么练出来的？"><a href="#它是怎么练出来的？" class="headerlink" title="它是怎么练出来的？"></a>它是怎么练出来的？</h2><p>整个训练过程在我自己的电脑上完成：</p><ul><li><strong>框架</strong>：LlamaFactory</li><li><strong>基座模型</strong>：Qwen3.5-0.8B</li><li><strong>微调方式</strong>：全精度 LoRA</li><li><strong>训练轮数</strong>：855 epochs</li><li><strong>训练硬件</strong>：纯 CPU</li><li><strong>训练时长</strong>：约 4-5 天</li></ul><p>没有 GPU、没有云服务器，就是一个中学生的普通电脑，跑了将近一周。虽然条件有限，但最终还是训练出了一个属于自己的 AI 心理助手。</p><h2 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h2><h3 id="方式一：Ollama（推荐）"><a href="#方式一：Ollama（推荐）" class="headerlink" title="方式一：Ollama（推荐）"></a>方式一：Ollama（推荐）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ollama run wangshen/wsai-heart</span><br></pre></td></tr></table></figure><h3 id="方式二：Transformers"><a href="#方式二：Transformers" class="headerlink" title="方式二：Transformers"></a>方式二：Transformers</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModelForCausalLM, AutoTokenizer</span><br><span class="line"></span><br><span class="line">model_path = <span class="string">&quot;./&quot;</span></span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(model_path)</span><br><span class="line">model = AutoModelForCausalLM.from_pretrained(model_path, torch_dtype=<span class="string">&quot;auto&quot;</span>, device_map=<span class="string">&quot;auto&quot;</span>)</span><br><span class="line"></span><br><span class="line">messages = [</span><br><span class="line">    &#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;system&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;你是一个温暖、有共情能力的心理支持助手。&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;role&quot;</span>: <span class="string">&quot;user&quot;</span>, <span class="string">&quot;content&quot;</span>: <span class="string">&quot;我最近心情不太好，感觉压力很大。&quot;</span>&#125;</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">text = tokenizer.apply_chat_template(messages, tokenize=<span class="literal">False</span>, add_generation_prompt=<span class="literal">True</span>)</span><br><span class="line">inputs = tokenizer(text, return_tensors=<span class="string">&quot;pt&quot;</span>).to(model.device)</span><br><span class="line">outputs = model.generate(**inputs, max_new_tokens=<span class="number">512</span>)</span><br><span class="line">response = tokenizer.decode(outputs[<span class="number">0</span>][inputs[<span class="string">&quot;input_ids&quot;</span>].shape[<span class="number">1</span>]:], skip_special_tokens=<span class="literal">True</span>)</span><br><span class="line"><span class="built_in">print</span>(response)</span><br></pre></td></tr></table></figure><h2 id="致谢"><a href="#致谢" class="headerlink" title="致谢"></a>致谢</h2><ul><li><a href="https://github.com/QwenLM">Qwen Team</a> — 提供优秀的 Qwen3.5 基座模型</li><li><a href="https://github.com/hiyouga/LLaMA-Factory">LlamaFactory</a> — 简洁高效的微调框架</li></ul>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> AI </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>Wangshen论坛 发布啦！</title>
+      <link href="/2025/03/15/forum/"/>
+      <url>/2025/03/15/forum/</url>
+      
+        <content type="html"><![CDATA[<p><a href="https://wangshen.flarum.cloud/">点击前往</a>，访问速度较慢，请耐心等待或开启 VPN 。</p><p>请遵守中国各项法律规定，所造成的后果一律由发布者承担。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 导航 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>游戏导航</title>
+      <link href="/2025/02/11/game/"/>
+      <url>/2025/02/11/game/</url>
+      
+        <content type="html"><![CDATA[<p> 如果你也想体验一些精心整理的好玩游戏，那就快来游戏世界（<a href="/other/game/">点击进入</a>）吧！🎮 这里有我用心整理的各类精彩游戏，绝对让你流连忘返！不过，游戏时间较长，记得要适时休息，保护好你的眼睛哦！✨ 玩得开心！</p><h2 id="加速方法：访问Cloudflare云端保护急速站（同步更新）（点我进入）"><a href="#加速方法：访问Cloudflare云端保护急速站（同步更新）（点我进入）" class="headerlink" title="加速方法：访问Cloudflare云端保护急速站（同步更新）（点我进入）"></a>加速方法：访问Cloudflare云端保护急速站（同步更新）（<a href="https://wangshenblog.pages.dev/other/game">点我进入</a>）</h2><p><a href="https://wangshen.flarum.cloud/d/4-you-xi-tao-lun-zhuan-tie">Wangshen论坛官方讨论区</a></p><h3 id="更新日志"><a href="#更新日志" class="headerlink" title="更新日志"></a>更新日志</h3><p>Upd 2025 12 27 <strong>年末大更新</strong>，更新游戏”网络模拟器“、”工厂放置“、”领土扩张“、”朋克放置“。</p><p>Upd 2026 02 06 更新<strong>原创</strong>游戏功德放置。</p><p>Upd 2026 04 04 更新功德放置UI。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 导航 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>About Me</title>
+      <link href="/2025/02/01/aboutme/"/>
+      <url>/2025/02/01/aboutme/</url>
+      
+        <content type="html"><![CDATA[<p>大家好，我是**✨人见人爱，花见花开，车见车爆胎✨的wangshen**，代词使用<strong>Ta</strong>，下面来爆照啦！📸</p><span id="more"></span><p>假的。</p><p>我的<a href="https://www.github.com/">github</a>号是<a href="https://github.com/wangshengithub">wangshengithub</a>💻，邮箱是<a href="mailto:&#x33;&#55;&#54;&#50;&#x33;&#x37;&#x31;&#x38;&#x34;&#x37;&#x40;&#x71;&#113;&#x2e;&#99;&#x6f;&#x6d;">3762371847@qq.com</a>📧，无事请勿骚扰🤫。</p><p>没啥好写的，就到这吧。</p><p>哦对了，记得⭐收藏我的博客哟，我会不定期更新！📚✨</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 简介 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+  
+  
+</search>

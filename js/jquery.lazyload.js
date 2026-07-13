@@ -70,7 +70,6 @@
                 if(target.attr("src"))return ;
 
                 if(options.cache == true){
-                    console.log(target);
                     //存进localstorage
                     var canvas1 = document.getElementById('canvas1');
                     var ctx1 = canvas1.getContext('2d');
@@ -81,7 +80,6 @@
                     image.onload=function(){
                         ctx1.drawImage(image,0,0);
                         imageData = ctx1.getImageData(0,0,500,250);
-                        console.log(imageData);
                     }
 
                 }else{

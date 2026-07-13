@@ -1,154 +1,94 @@
 define([], function(){
 	var _isShow = false;
-	var $tag, $aboutme, $friends;
+	var $tag, $toys;
+	var ctn, basicwrap;
 
-	var ctn,radio,scaleW,idx,basicwrap;
-
-	//第一步 -- 初始化
-	var reset = function() {
-		//设定窗口比率
-		radio = document.body.scrollHeight/document.body.scrollWidth;
-		//设定一页的宽度
-		scaleW = document.body.scrollWidth;
-		//设定初始的索引值
-		idx = 0;
-	};
-	//第一步 -- 组合
+	// 从 PC 左栏复制内容到移动端抽屉
 	var combine = function(){
-		if($tag){
-			document.getElementById("js-mobile-tagcloud").innerHTML = $tag.innerHTML;
-		}
-		if($aboutme){
-			document.getElementById("js-mobile-aboutme").innerHTML = $aboutme.innerHTML;
-		}
-		if($friends){
-			document.getElementById("js-mobile-friends").innerHTML = $friends.innerHTML;
-		}
-	}
-	//第三步 -- 根据数据渲染DOM
+		if($tag){ document.getElementById("js-mobile-tagcloud").innerHTML = $tag.innerHTML; }
+		if($toys){ document.getElementById("js-mobile-toys").innerHTML = $toys.innerHTML; }
+	};
+
+	// 渲染抽屉 DOM（高度交给 CSS：#viewer 全屏 fixed，#viewer-box height:100%）
 	var renderDOM = function(){
-		//生成节点
 		var $viewer = document.createElement("div");
 		$viewer.id = "viewer";
 		$viewer.className = "hide";
 		$tag = document.getElementById("js-tagcloud");
-		$aboutme = document.getElementById("js-aboutme");
-		$friends = document.getElementById("js-friends");
-		var tagStr = $tag?'<span class="viewer-title">标签</span><div class="viewer-div tagcloud" id="js-mobile-tagcloud"></div>':"";
-		var friendsStr = $friends?'<span class="viewer-title">友情链接</span><div class="viewer-div friends" id="js-mobile-friends"></div>':"";
-		var aboutmeStr = $aboutme?'<span class="viewer-title">关于我</span><div class="viewer-div aboutme" id="js-mobile-aboutme"></div>':"";
-
-		$viewer.innerHTML = '<div id="viewer-box">\
-		<div class="viewer-box-l">\
-			<div class="viewer-box-wrap">'+aboutmeStr+friendsStr+tagStr+'</div>\
-		</div>\
-		<div class="viewer-box-r"></div>\
-		</div>';
-
-		//主要图片节点
+		$toys = document.getElementById("js-toys");
+		var tagStr = $tag ? '<span class="viewer-title">标签</span><div class="viewer-div tagcloud" id="js-mobile-tagcloud"></div>' : "";
+		var toysStr = $toys ? '<span class="viewer-title">一些小玩意儿</span><div class="viewer-div toys" id="js-mobile-toys"></div>' : "";
+		$viewer.innerHTML = '<div id="viewer-box"><div class="viewer-box-l"><div class="viewer-header"><span class="viewer-header-title">导航</span><span class="viewer-close" id="viewer-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></span></div><div class="viewer-box-wrap">'+toysStr+tagStr+'</div></div><div class="viewer-box-r"></div></div>';
 		document.getElementsByTagName("body")[0].appendChild($viewer);
-		var wrap = document.getElementById("viewer-box");
-		basicwrap = wrap;
-		wrap.style.height = document.body.scrollHeight + 'px';
+		basicwrap = document.getElementById("viewer-box");
 	};
 
-	var show = function(target, idx){
-		document.getElementById("viewer").className = "";
-		setTimeout(function(){
-			basicwrap.className = "anm-swipe";
-		},0);
+	var show = function(){
+		var viewer = document.getElementById("viewer");
+		viewer.className = "";                                // 显示遮罩
+		basicwrap.className = "";                             // 确保从滑出态开始
 		_isShow = true;
-		document.ontouchstart=function(e){
-			if(e.target.tagName != "A"){
-				return false;
-			}
-		}
-	}
+		setTimeout(function(){ basicwrap.className = "anm-swipe"; }, 20);  // 触发滑入动画
+	};
 
 	var hide = function(){
-		document.getElementById("viewer-box").className = "";
+		if(!_isShow) return;
 		_isShow = false;
-		document.ontouchstart=function(){
-			return true;
-		}
-	}
+		basicwrap.className = "";                             // 移除 anm-swipe，滑回
+		// 兜底：动画结束后隐藏遮罩（不依赖 transitionend）
+		setTimeout(function(){
+			var v = document.getElementById("viewer");
+			if(v && !_isShow){ v.className = "hide"; }
+		}, 300);
+	};
 
-	//第四步 -- 绑定 DOM 事件
 	var bindDOM = function(){
-		var scaleW = scaleW;
-		
-		//滑动隐藏
-		document.getElementById("viewer-box").addEventListener("webkitTransitionEnd", function(){
+		// 滑动结束隐藏遮罩（标准 transitionend + webkit 兜底）
+		var onTransEnd = function(){
+			if(!_isShow){ document.getElementById("viewer").className = "hide"; }
+		};
+		basicwrap.addEventListener("transitionend", onTransEnd, false);
+		basicwrap.addEventListener("webkitTransitionEnd", onTransEnd, false);
 
-			if(_isShow == false){
-				document.getElementById("viewer").className = "hide";
-				_isShow = true;
-			}else{
-			}
-			
+		// slider-trigger：点开关（toggle）
+		ctn.addEventListener("click", function(e){
+			e.stopPropagation();
+			_isShow ? hide() : show();
 		}, false);
 
-		//点击展示和隐藏
-		ctn.addEventListener("touchend", function(){
-			show();
-		}, false);
-
+		// 点抽屉右侧空白关闭
 		var $right = document.getElementsByClassName("viewer-box-r")[0];
-		var touchStartTime;
-		var touchEndTime;
-		$right.addEventListener("touchstart", function(){
-			touchStartTime = + new Date();
-		}, false);
-		$right.addEventListener("touchend", function(){
-			touchEndTime = + new Date();
-			if(touchEndTime - touchStartTime < 300){
-				hide();
-			}
-			touchStartTime = 0;
-			touchEndTime = 0;
+		if($right){ $right.addEventListener("click", function(){ hide(); }, false); }
+
+		// 点关闭按钮 ×
+		var $close = document.getElementById("viewer-close");
+		if($close){ $close.addEventListener("click", function(){ hide(); }, false); }
+
+		// Esc 关闭
+		document.addEventListener("keydown", function(e){
+			if(e.key === "Escape" && _isShow){ hide(); }
 		}, false);
 
-		//滚动样式
+		// 顶部 overlay 滚动 fixed + 作者名回顶
 		var $overlay = $("#mobile-nav .overlay");
 		var $header = $(".js-mobile-header");
 		window.onscroll = function(){
-		    var scrollTop = document.documentElement.scrollTop + document.body.scrollTop;
-		    if(scrollTop >= 69){
-		    	$overlay.addClass("fixed");
-		    }else{
-		    	$overlay.removeClass("fixed");
-		    }
-		    if(scrollTop >= 160){
-		    	$header.removeClass("hide").addClass("fixed");
-		    }else{
-		    	$header.addClass("hide").removeClass("fixed");
-		    }
+			var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+			if(scrollTop >= 69){ $overlay.addClass("fixed"); }else{ $overlay.removeClass("fixed"); }
+			if(scrollTop >= 160){ $header.removeClass("hide").addClass("fixed"); }else{ $header.addClass("hide").removeClass("fixed"); }
 		};
-		$header[0].addEventListener("touchstart", function(){
-			$('html, body').animate({scrollTop:0}, 'slow');
-		}, false);
+		if($header[0]){
+			$header[0].addEventListener("click", function(){ $('html, body').animate({scrollTop:0}, 'slow'); }, false);
+		}
 	};
 
-	var resetTags = function(){
-		var tags = $(".tagcloud a");
-		tags.css({"font-size": "12px"});
-		for(var i=0,len=tags.length; i<len; i++){
-			var num = tags.eq(i).html().length % 5 +1;
-			tags[i].className = "";
-			tags.eq(i).addClass("color"+num);
-		}
-	}
-
-	return{
+	return {
 		init: function(){
-			//构造函数需要的参数
 			ctn = document.getElementsByClassName("slider-trigger")[0];
-			//构造四步
-			reset();
+			if(!ctn) return;
 			renderDOM();
 			combine();
 			bindDOM();
-			resetTags();
 		}
-	}
-})
+	};
+});

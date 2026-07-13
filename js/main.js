@@ -21,7 +21,7 @@ require([], function (){
 		  {
 		    "particles": {
 		      "number": {
-		        "value": 80,
+		        "value": ($(window).width() < 700 ? 20 : 80),
 		        "density": {
 		          "enable": true,
 		          "value_area": 800
@@ -67,14 +67,14 @@ require([], function (){
 		      },
 		      "line_linked": {
 		        "enable": true,
-		        "distance": 150,
+		        "distance": ($(window).width() < 700 ? 100 : 150),
 		        "color": "#ff945c",
 		        "opacity": 0.4,
 		        "width": 1
 		      },
 		      "move": {
 		        "enable": true,
-		        "speed": 6,
+		        "speed": ($(window).width() < 700 ? 3 : 6),
 		        "direction": "none",
 		        "random": false,
 		        "straight": false,
@@ -176,7 +176,7 @@ require([], function (){
 	}
 
 	//是否使用fancybox
-	if(yiliaConfig.fancybox === true){
+	if(pixieConfig.fancybox === true){
 		require(['/fancybox/jquery.fancybox.js'], function(pc){
 			var isFancy = $(".isFancy");
 			if(isFancy.length != 0){
@@ -192,7 +192,7 @@ require([], function (){
 
 	}
 	//是否开启动画
-	if(yiliaConfig.animate === true){
+	if(pixieConfig.animate === true){
 
 		require(['/js/jquery.lazyload.js'], function(){
 			//avatar
@@ -202,7 +202,7 @@ require([], function (){
 			}
 		});
 
-		if(yiliaConfig.isHome === true){
+		if(pixieConfig.isHome === true){
 			//content
 			function showArticle(){
 				$(".article").each(function(){
@@ -225,8 +225,23 @@ require([], function (){
 	}
 
 	//是否新窗口打开链接
-	if(yiliaConfig.open_in_new == true){
-		$(".article a[href]").attr("target", "_blank")
+	if(pixieConfig.open_in_new == true){
+		$(".article-entry a[href]").attr("target", "_blank")
+	}
+
+	// 返回顶部按钮
+	var $btt = $("#back-to-top");
+	if($btt.length){
+		$(window).on("scroll", function(){
+			if($(window).scrollTop() > $(window).height()){
+				$btt.addClass("show");
+			}else{
+				$btt.removeClass("show");
+			}
+		});
+		$btt.on("click", function(){
+			$("html,body").animate({scrollTop:0}, 400);
+		});
 	}
 
 });
