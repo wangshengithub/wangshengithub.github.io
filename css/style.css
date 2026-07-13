@@ -246,6 +246,9 @@ a {
 }
 #container .left-col .intrude-less {
   width: 76%;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
   text-align: center;
   margin: 30px auto;
   max-height: calc(100% - 60px);
@@ -531,7 +534,6 @@ a {
 /* 左栏分区通用 */
 /* 标签云：保留彩色胶囊 + 数量 */
 /* 小玩意儿：纯文字列表 */
-/* 社交图标：FA6 字体，置底 */
 }
 #header a {
   color: #fff;
