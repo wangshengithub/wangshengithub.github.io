@@ -337,7 +337,6 @@ a {
     padding: 10px;
     margin: 10px;
     font-size: 15px;
-/* prev/next 双卡片：小屏上下堆叠 */
   }
   #container .article .article-entry {
     padding-left: 0;
@@ -530,10 +529,6 @@ a {
 }
 #header {
   width: 100%;
-/* 一级导航：竖排菜单胶囊 */
-/* 左栏分区通用 */
-/* 标签云：保留彩色胶囊 + 数量 */
-/* 小玩意儿：纯文字列表 */
 }
 #header a {
   color: #fff;
@@ -988,9 +983,6 @@ tag-count {
   line-height: 1.8em;
   padding-right: 30px;
   padding-left: 30px;
-/* 行内代码：统一为代码块风格（去掉刺眼红底），略浅以区分块级 */
-/* 标题层级：橙 → 浅橙 → 浅黄白 → 白，逐级递减 */
-/* 表格：深色风格（原浅色表头在深色主题里突兀）*/
 }
 .article-entry p {
   margin-top: 10px;
@@ -1247,7 +1239,6 @@ tag-count {
   transition: all 0.3s;
   color: #fff;
   min-width: 0;
-/* 只有一个卡片（无上/下一篇）时不占满，靠一侧 */
 }
 #article-nav .article-nav-card .nav-arrow {
   font-size: 18px;
@@ -2229,7 +2220,6 @@ tag-count {
   border-bottom: 1px dotted #444;
   padding-bottom: 14px;
   margin-bottom: 6px;
-/* 标签云：复用 PC 的 .tagcloud a 胶囊样式 + color1-5 + tag-count 暗色背景（不覆盖）*/
 }
 #viewer-box .viewer-box-l .viewer-div:last-child {
   border-bottom: none;
