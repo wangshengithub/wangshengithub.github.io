@@ -1278,9 +1278,8 @@ tag-count {
 #article-nav .article-nav-card .nav-title {
   font-size: 14px;
   color: #eee;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.5;
+  word-break: break-word;
 }
 #article-nav .article-nav-card.nav-next {
   text-align: right;
