@@ -260,6 +260,7 @@ require([], function (){
 	$('.article-entry figure.highlight, .article-entry pre').each(function(){
 		var $block = $(this);
 		if($block.find('.code-toolbar').length) return;
+		if($block.is('pre') && $block.closest('figure.highlight').length) return;
 		var $code = $block.find('code').length ? $block.find('code').first() : $block;
 		var codeText = $code.text();
 		var lineCount = codeText.split('\n').length;

@@ -2102,12 +2102,28 @@ tag-count {
   padding: 0 16px;
   height: 48px;
   background: rgba(40,40,40,0.92);
+  -webkit-transition: box-shadow 0.2s;
+  -moz-transition: box-shadow 0.2s;
+  -ms-transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s;
+  -webkit-transition: box-shadow 0.2s;
+  -moz-transition: box-shadow 0.2s;
+  -ms-transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s;
   border: 1px solid #444;
   border-radius: 24px;
   -webkit-box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   box-shadow: 0 4px 20px rgba(0,0,0,0.5);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+.search-bar:focus-within {
+  -webkit-box-shadow: 0 0 12px rgba(0,255,204,0.4);
+  box-shadow: 0 0 12px rgba(0,255,204,0.4);
+}
+.search-bar:focus-within {
+  -webkit-box-shadow: 0 0 12px rgba(0,255,204,0.4);
+  box-shadow: 0 0 12px rgba(0,255,204,0.4);
 }
 .search-bar .search-icon {
   color: #0fc;
