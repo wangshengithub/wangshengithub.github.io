@@ -263,7 +263,7 @@ require([], function (){
 		if($block.is('pre') && $block.closest('figure.highlight').length) return;
 		var $code = $block.find('code').length ? $block.find('code').first() : $block;
 		var codeText = $code.text();
-		var lineCount = codeText.split('\n').length;
+		var lineCount = $block.find('.line').length || codeText.split('\n').length;
 		var $toolbar = $('<div class="code-toolbar"></div>');
 		var $copy = $('<button class="code-copy-btn" title="复制"><i class="fa-solid fa-copy"></i></button>');
 		$copy.on('click', function(){
