@@ -244,4 +244,41 @@ require([], function (){
 		});
 	}
 
+	$(document).on('keydown', function(e){
+		var tag = document.activeElement.tagName;
+		var typing = tag === 'INPUT' || tag === 'TEXTAREA';
+		if(e.key === '/' && !typing){
+			var $s = $('#search-input');
+			if($s.length){ e.preventDefault(); $s.focus(); }
+		}
+		if((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')){
+			var $s2 = $('#search-input');
+			if($s2.length){ e.preventDefault(); $s2.focus(); }
+		}
+	});
+
+	$('.article-entry figure.highlight, .article-entry pre').each(function(){
+		var $block = $(this);
+		if($block.find('.code-toolbar').length) return;
+		var $code = $block.find('code').length ? $block.find('code').first() : $block;
+		var codeText = $code.text();
+		var lineCount = codeText.split('\n').length;
+		var $toolbar = $('<div class="code-toolbar"></div>');
+		var $copy = $('<button class="code-copy-btn" title="复制"><i class="fa-solid fa-copy"></i></button>');
+		$copy.on('click', function(){
+			navigator.clipboard.writeText(codeText).then(function(){
+				$copy.html('<i class="fa-solid fa-check"></i>');
+				setTimeout(function(){ $copy.html('<i class="fa-solid fa-copy"></i>'); }, 2000);
+			});
+		});
+		$toolbar.append($copy);
+		var $fold = $('<button class="code-fold-btn">折叠</button>');
+		$fold.on('click', function(){
+			$block.toggleClass('collapsed');
+			$fold.text($block.hasClass('collapsed') ? '展开' : '折叠');
+		});
+		$toolbar.append($fold);
+		$block.css('position', 'relative').prepend($toolbar);
+	});
+
 });
