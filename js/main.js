@@ -273,13 +273,16 @@ require([], function (){
 			});
 		});
 		$toolbar.append($copy);
-		var $fold = $('<button class="code-fold-btn">折叠</button>');
-		$fold.on('click', function(){
-			$block.toggleClass('collapsed');
-			$fold.text($block.hasClass('collapsed') ? '展开' : '折叠');
-		});
-		$toolbar.append($fold);
 		$block.css('position', 'relative').prepend($toolbar);
+		if(lineCount >= 5){
+			$block.addClass('collapsed');
+			var $fold = $('<button class="code-fold-btn">展开</button>');
+			$fold.on('click', function(){
+				$block.toggleClass('collapsed');
+				$fold.text($block.hasClass('collapsed') ? '展开' : '折叠');
+			});
+			$block.append($fold);
+		}
 	});
 
 });
