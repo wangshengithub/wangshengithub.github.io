@@ -275,7 +275,7 @@ require([], function (){
 		$toolbar.append($copy);
 		$block.css('position', 'relative').prepend($toolbar);
 		if(lineCount >= 5){
-			var $fold = $('<button class="code-fold-btn" title="折叠"><i class="fa-solid fa-compress"></i></button>');
+			var $fold = $('<button class="code-fold-btn" title="折叠">折叠</button>');
 			$fold.on('click', function(){
 				$block.addClass('collapsed');
 			});
