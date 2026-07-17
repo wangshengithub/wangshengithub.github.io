@@ -275,13 +275,16 @@ require([], function (){
 		$toolbar.append($copy);
 		$block.css('position', 'relative').prepend($toolbar);
 		if(lineCount >= 5){
-			$block.addClass('collapsed');
-			var $fold = $('<button class="code-fold-btn">展开</button>');
+			var $fold = $('<button class="code-fold-btn" title="折叠"><i class="fa-solid fa-compress"></i></button>');
 			$fold.on('click', function(){
-				$block.toggleClass('collapsed');
-				$fold.text($block.hasClass('collapsed') ? '展开' : '折叠');
+				$block.addClass('collapsed');
 			});
-			$block.append($fold);
+			$toolbar.append($fold);
+			var $expand = $('<button class="code-expand-btn">展开 <i class="fa-solid fa-chevron-down"></i></button>');
+			$expand.on('click', function(){
+				$block.removeClass('collapsed');
+			});
+			$block.append($expand);
 		}
 	});
 

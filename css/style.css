@@ -1109,14 +1109,22 @@ tag-count {
   position: absolute;
   top: 8px;
   right: 8px;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: box;
+  display: flex;
+  gap: 4px;
   z-index: 3;
 }
-.article-entry .code-copy-btn {
+.article-entry .code-copy-btn,
+.article-entry .code-fold-btn {
   background: rgba(68,71,90,0.9);
   border: 1px solid #6272a4;
   color: #f8f8f2;
-  border-radius: 4px;
-  padding: 2px 8px;
+  border-radius: 3px;
+  padding: 3px 7px;
   font-size: 12px;
   cursor: pointer;
   -webkit-transition: 0.2s;
@@ -1124,24 +1132,26 @@ tag-count {
   -ms-transition: 0.2s;
   transition: 0.2s;
 }
-.article-entry .code-copy-btn:hover {
+.article-entry .code-copy-btn:hover,
+.article-entry .code-fold-btn:hover {
   background: rgba(255,165,0,0.2);
   border-color: #ffa500;
   color: #ffa500;
 }
-.article-entry .code-fold-btn {
+.article-entry .code-expand-btn {
   position: absolute;
-  bottom: 10px;
+  bottom: 8px;
   left: 50%;
   -webkit-transform: translateX(-50%);
   -moz-transform: translateX(-50%);
   -ms-transform: translateX(-50%);
   transform: translateX(-50%);
+  display: none;
   background: rgba(40,42,54,0.95);
   border: 1px solid #6272a4;
   color: #f8f8f2;
-  border-radius: 12px;
-  padding: 3px 16px;
+  border-radius: 3px;
+  padding: 3px 12px;
   font-size: 12px;
   cursor: pointer;
   z-index: 3;
@@ -1150,7 +1160,7 @@ tag-count {
   -ms-transition: 0.2s;
   transition: 0.2s;
 }
-.article-entry .code-fold-btn:hover {
+.article-entry .code-expand-btn:hover {
   background: rgba(255,165,0,0.2);
   border-color: #ffa500;
   color: #ffa500;
@@ -1166,6 +1176,10 @@ tag-count {
 .article-entry pre.collapsed {
   max-height: 130px;
   overflow: hidden;
+}
+.article-entry figure.highlight.collapsed .code-expand-btn,
+.article-entry pre.collapsed .code-expand-btn {
+  display: block;
 }
 .article-entry figure.highlight.collapsed::after,
 .article-entry pre.collapsed::after {
@@ -1543,7 +1557,7 @@ tag-count {
   background: #4d4d4d;
   color: #fff;
   border: 1px solid #666;
-  border-radius: 20px;
+  border-radius: 3px;
   cursor: pointer;
   font-size: 13px;
   -webkit-transition: all 0.3s;
