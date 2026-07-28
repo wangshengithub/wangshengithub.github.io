@@ -8,15 +8,15 @@
   
 
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具你有没有遇到过这种场景？  做了一个付费课程的预览页，只想让付过钱的人看到内容 开发了一个小游戏 &#x2F; 小工具，只想在小圈子里分享，不想被搜索引擎收录、被陌生人随便打开 临时需要把一个页面分享给特定的人，但不想搭服务器、不想写后端、不想折腾鉴权系统  传统方案是什么？Nginx 加个 Basic Auth？搭个 Node&#x2F;">
+  <meta name="description" content="你有没有遇到过这种场景？  做了一个付费课程的预览页，只想让付过钱的人看到内容 开发了一个小游戏 &#x2F; 小工具，只想在小圈子里分享，不想被搜索引擎收录、被陌生人随便打开 临时需要把一个页面分享给特定的人，但不想搭服务器、不想写后端、不想折腾鉴权系统  传统方案是什么？Nginx 加个 Basic Auth？搭个 Node&#x2F;Python 后端做登录？用第三方 SaaS 加密平台？">
 <meta property="og:type" content="article">
 <meta property="og:title" content="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具">
 <meta property="og:url" content="https://wangshenblog.pages.dev/2026/07/28/staticshield/index.html">
 <meta property="og:site_name" content="Wangshen的小站">
-<meta property="og:description" content="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具你有没有遇到过这种场景？  做了一个付费课程的预览页，只想让付过钱的人看到内容 开发了一个小游戏 &#x2F; 小工具，只想在小圈子里分享，不想被搜索引擎收录、被陌生人随便打开 临时需要把一个页面分享给特定的人，但不想搭服务器、不想写后端、不想折腾鉴权系统  传统方案是什么？Nginx 加个 Basic Auth？搭个 Node&#x2F;">
+<meta property="og:description" content="你有没有遇到过这种场景？  做了一个付费课程的预览页，只想让付过钱的人看到内容 开发了一个小游戏 &#x2F; 小工具，只想在小圈子里分享，不想被搜索引擎收录、被陌生人随便打开 临时需要把一个页面分享给特定的人，但不想搭服务器、不想写后端、不想折腾鉴权系统  传统方案是什么？Nginx 加个 Basic Auth？搭个 Node&#x2F;Python 后端做登录？用第三方 SaaS 加密平台？">
 <meta property="og:locale">
 <meta property="article:published_time" content="2026-07-27T16:00:00.000Z">
-<meta property="article:modified_time" content="2026-07-28T11:12:32.127Z">
+<meta property="article:modified_time" content="2026-07-28T11:20:14.836Z">
 <meta property="article:author" content="wangshen">
 <meta property="article:tag" content="工具">
 <meta name="twitter:card" content="summary">
@@ -73,13 +73,13 @@
 				
 					<a href="/tags/%E7%AE%80%E4%BB%8B/" class="color1">简介<span class="tag-count">1</span></a>
 				
-					<a href="/tags/%E5%B7%A5%E5%85%B7/" class="color2">工具<span class="tag-count">1</span></a>
+					<a href="/tags/AI/" class="color2">AI<span class="tag-count">5</span></a>
 				
-					<a href="/tags/AI/" class="color3">AI<span class="tag-count">5</span></a>
+					<a href="/tags/%E5%AF%BC%E8%88%AA/" class="color3">导航<span class="tag-count">3</span></a>
 				
 					<a href="/tags/%E6%B8%B8%E6%88%8F/" class="color4">游戏<span class="tag-count">2</span></a>
 				
-					<a href="/tags/%E5%AF%BC%E8%88%AA/" class="color5">导航<span class="tag-count">3</span></a>
+					<a href="/tags/%E5%B7%A5%E5%85%B7/" class="color5">工具<span class="tag-count">1</span></a>
 				
 			</div>
 		</section>
@@ -215,7 +215,7 @@
     
 
     
-    <div class="post-meta-extra"><span><i class="fa-solid fa-pen-nib"></i> 字数 7680</span><span class="dot">·</span><span><i class="fa-regular fa-clock"></i> 约 26 分钟</span></div>
+    <div class="post-meta-extra"><span><i class="fa-solid fa-pen-nib"></i> 字数 7651</span><span class="dot">·</span><span><i class="fa-regular fa-clock"></i> 约 26 分钟</span></div>
     
 
     
@@ -243,7 +243,7 @@
 
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具"><a href="#不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具" class="headerlink" title="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具"></a>不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具</h1><p>你有没有遇到过这种场景？</p>
+        <p>你有没有遇到过这种场景？</p>
 <ul>
 <li>做了一个付费课程的预览页，只想让付过钱的人看到内容</li>
 <li>开发了一个小游戏 &#x2F; 小工具，只想在小圈子里分享，不想被搜索引擎收录、被陌生人随便打开</li>
@@ -412,7 +412,7 @@
 <p><a target="_blank" rel="noopener" href="https://github.com/wangshengithub/staticshield"><strong>https://github.com/wangshengithub/staticshield</strong></a></p>
 <p>欢迎先体验加密后的「奉国牧马」：<a target="_blank" rel="noopener" href="https://horseempire-staticshield.pages.dev/">https://horseempire-staticshield.pages.dev/</a>（密码：<code>horseempire-staticshield</code>）</p>
 <p>觉得有用请给项目点个 ⭐ Star，也欢迎提 Issue 和 PR，这是对我最大的支持。</p>
-<h1 id="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具-1"><a href="#不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具-1" class="headerlink" title="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具"></a>不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具</h1><p>你有没有遇到过这种场景？</p>
+<h1 id="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具"><a href="#不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具" class="headerlink" title="不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具"></a>不想搭后端，怎么给网页加密码保护？我写了个零依赖的开源工具</h1><p>你有没有遇到过这种场景？</p>
 <ul>
 <li>做了一个付费课程的预览页，只想让付过钱的人看到内容</li>
 <li>开发了一个小游戏 &#x2F; 小工具，只想在小圈子里分享，不想被搜索引擎收录、被陌生人随便打开</li>
