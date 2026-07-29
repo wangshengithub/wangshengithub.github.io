@@ -6,11 +6,6 @@
     <title>游戏世界 · GAME WORLD | 放置游戏档案室</title>
     <meta name="description" content="收录十余款可离线畅玩的放置、增量、策略网页游戏，点开即玩，无需登录、没有广告。">
 
-    <!-- 字体：Anton（窄高超粗，用于英文与编号）/ Noto Sans SC 900（中文超粗黑标题）/ Space Mono（等宽，标签与正文） -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+SC:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
         /* ============================================================
          * Neo-Brutalist 设计系统
@@ -18,21 +13,47 @@
          *           大号编号、不对称高亮、手工倾斜感、克制的硬切换动效
          * ============================================================ */
 
+        /* ---------- 本地自托管字体（已下载到 fonts/，无需联网，加载更快） ---------- */
+        @font-face {
+            font-family: 'Anton';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('fonts/anton-latin-400-normal.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Space Mono';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('fonts/space-mono-latin-400-normal.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Space Mono';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url('fonts/space-mono-latin-700-normal.woff2') format('woff2');
+        }
+
         /* ---------- 设计令牌（CSS 变量） ---------- */
         :root {
             --cream:   #f4f1ea;  /* 主背景：暖奶油 */
             --ink:     #111111;  /* 主色：近纯黑（边框/文字/阴影） */
             --paper:   #ffffff;  /* 卡片底：纯白，与奶油形成层次 */
-            --accent:  #ccff00;  /* 主撞色：荧光黄绿（悬停翻转色） */
+            --accent:  #ccff00;  /* 主撞色：荧光黄绿（悬停翻转色 / 原创徽标） */
+            --gold:    #f5c518;  /* 原创游戏图标色：醒目金 */
+            --fork:    #c77dff;  /* 二次开发图标色：紫 */
             --muted:   #6b665a;  /* 辅助灰：禁用态 */
             --border-w: 3px;     /* 统一粗边框宽度 */
             --shadow:    8px 8px 0 var(--ink);   /* 经典 brutalist 实色硬阴影 */
             --shadow-lg: 12px 12px 0 var(--ink); /* 悬停加深的硬阴影 */
             --shadow-sm: 4px 4px 0 var(--ink);   /* 小元素阴影 */
 
-            --font-display: 'Anton', 'Noto Sans SC', sans-serif;          /* 英文/编号 */
-            --font-cn:      'Noto Sans SC', sans-serif;                    /* 中文主体 */
-            --font-mono:    'Space Mono', 'Courier New', monospace;        /* 标签/元信息 */
+            /* 英文展示字体本地自托管；中文用系统字体栈（零加载、各平台原生渲染） */
+            --font-display: 'Anton', 'Arial Narrow', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            --font-cn:      'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', 'Source Han Sans SC', 'Noto Sans CJK SC', sans-serif;
+            --font-mono:    'Space Mono', ui-monospace, 'Courier New', monospace;
         }
 
         /* ---------- 基础重置 ---------- */
@@ -50,8 +71,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            /* 防止跑马灯、倾斜标题等元素引发横向滚动条 */
-            overflow-x: hidden;
+            overflow-x: hidden; /* 防止走马灯等内容引发横向滚动条 */
         }
 
         a { color: inherit; }
@@ -60,32 +80,36 @@
         .container { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 24px; }
 
         /* ============================================================
-         * 顶部跑马灯 —— 黑底荧光字，无限横向滚动，奠定街机/档案室氛围
+         * 顶部走马灯 —— 黑底大字，绿/白交替，由 JS（requestAnimationFrame）驱动滚动
+         * （不使用 CSS animation，避免被 prefers-reduced-motion 规则误禁用）
          * ============================================================ */
         .marquee {
             background: var(--ink);
             color: var(--accent);
             border-bottom: var(--border-w) solid var(--ink);
             overflow: hidden;
-            padding: 11px 0;
-            white-space: nowrap;
+            padding: 13px 0;
             position: relative;
         }
         .marquee-track {
             display: inline-flex;
             will-change: transform;
-            animation: marquee 32s linear infinite;
+            /* transform 由 JS 实时设置，这里只负责横向排布 */
         }
-        .marquee-track span {
+        .marquee-track .m {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7em;
+            padding-right: 1.4em; /* 两份内容拼接处的间距 */
             font-family: var(--font-display);
-            font-size: 1.15rem;
-            letter-spacing: 0.12em;
-            padding-right: 1.5em;
+            font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+            letter-spacing: 0.06em;
+            white-space: nowrap;
         }
-        @keyframes marquee {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-50%); } /* 内容复制两份，-50% 实现无缝衔接 */
-        }
+        /* 绿/白交替，营造 LED 滚动屏节奏 */
+        .marquee-track .m i    { font-style: normal; color: #ffffff; }
+        .marquee-track .m b    { font-weight: 400;   color: var(--accent); }
+        .marquee-track .m .star{ color: var(--accent); }
 
         /* ============================================================
          * 英雄区（Hero）
@@ -234,7 +258,7 @@
             line-height: 0.9;
             letter-spacing: 0.02em;
         }
-        /* 图标色块：使用每张卡独立的 --c 撞色，循环出节奏 */
+        /* 图标色块：原创用金色 --gold，二次开发用紫色 --fork，转载用各卡 --c 撞色循环 */
         .card-icon {
             width: 58px;
             height: 58px;
@@ -265,18 +289,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: auto; /* 把 CTA 钉在卡片底部，保证网格视觉对齐 */
+            margin-top: auto; /* 把徽标/CTA 钉在卡片底部，保证网格视觉对齐 */
             padding-top: 4px;
+            gap: 8px;
         }
-        .card-genre {
+
+        /* 来源徽标：原创 / 转载 / 二次开发 / 即将推出 */
+        .badge {
+            display: inline-block;
             font-family: var(--font-mono);
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 700;
+            letter-spacing: 0.04em;
             padding: 3px 9px;
-            background: var(--ink);
-            color: #fff;
-            letter-spacing: 0.02em;
+            border: 2px solid var(--ink);
+            white-space: nowrap;
         }
+        .badge--orig  { background: var(--accent); color: var(--ink); }                 /* 原创：荧光绿底黑字，最醒目 */
+        .badge--fork  { background: #7c3aed;       color: #fff; }                        /* 二次开发：紫底白字 */
+        .badge--repro { background: var(--ink);    color: #fff; }                        /* 转载：黑底白字 */
+        .badge--soon  { background: var(--muted);  color: #fff; border-color: var(--muted); } /* 即将推出：灰 */
+
         .card-cta {
             font-family: var(--font-mono);
             font-weight: 700;
@@ -298,6 +331,7 @@
             background: var(--ink);
             transform: rotate(-6deg) scale(1.06);
         }
+        .game-card:hover .badge { background: var(--ink); color: var(--accent); border-color: var(--ink); }
         .game-card:hover .card-cta { background: var(--ink); color: var(--accent); }
 
         /* ---------- 即将推出（占位）卡片：斜纹灰底 + 禁用态，不参与翻色 ---------- */
@@ -306,17 +340,16 @@
             cursor: not-allowed;
         }
         .game-card.is-soon .card-icon { background: var(--muted); }
-        .game-card.is-soon .card-genre,
-        .game-card.is-soon .card-cta { background: var(--muted); }
-        /* 悬停仅轻微抬升提示「可关注」，但不翻荧光绿、图标不旋转，明确传达不可用 */
+        /* 悬停仅轻微抬升提示「可关注」，但不翻荧光绿、徽标保持灰，明确传达不可用 */
         .game-card.is-soon:hover {
             transform: translate(-3px, -3px);
             box-shadow: var(--shadow-lg);
             background: repeating-linear-gradient(45deg, #e7e3d8 0 12px, #ddd8c9 12px 24px);
         }
+        .game-card.is-soon:hover .badge { background: var(--muted); color: #fff; border-color: var(--muted); }
 
         /* ============================================================
-         * 页脚
+         * 页脚（仅保留版权）
          * ============================================================ */
         .footer {
             background: var(--ink);
@@ -327,15 +360,12 @@
         }
         .foot-grid {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 14px;
             font-family: var(--font-mono);
             font-size: 0.84rem;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.04em;
         }
-        .foot-grid .mid { color: var(--accent); }
         .foot-grid .brand { font-weight: 700; }
 
         /* ============================================================
@@ -344,26 +374,23 @@
         @media (max-width: 600px) {
             .hero { padding: 36px 0 30px; }
             .game-grid { grid-template-columns: 1fr; gap: 20px; }
-            .foot-grid { justify-content: flex-start; }
         }
 
-        /* 尊重「减少动态」偏好 */
+        /* 尊重「减少动态」偏好：仅禁用纯装饰性 CSS 过渡/动画（卡片入场等）。
+           走马灯由 JS 驱动，且是信息展示，保持滚动。 */
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation: none !important;
-                transition: none !important;
-            }
-            .game-card { opacity: 1; }
+            .game-card { animation: none !important; opacity: 1; }
+            .game-card, .card-icon, .badge, .card-cta { transition: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 顶部跑马灯 -->
-    <div class="marquee" aria-hidden="true">
-        <div class="marquee-track">
-            <span>★ IDLE GAMES ★ 放置游戏 ★ INCREMENTAL ★ 数值增长 ★ STRATEGY ★ 策略 ★ SIMULATION ★ 模拟 ★ CLICK TO PLAY ★ 点开即玩 ★ NO LOGIN ★ 无需登录 ★ </span>
-            <span>★ IDLE GAMES ★ 放置游戏 ★ INCREMENTAL ★ 数值增长 ★ STRATEGY ★ 策略 ★ SIMULATION ★ 模拟 ★ CLICK TO PLAY ★ 点开即玩 ★ NO LOGIN ★ 无需登录 ★ </span>
+    <!-- 顶部走马灯（JS 驱动滚动；内容复制两份用于无缝循环） -->
+    <div class="marquee" id="marquee" aria-hidden="true">
+        <div class="marquee-track" id="marqueeTrack">
+            <span class="m"><b>GAME WORLD</b><i>13 款放置游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
+            <span class="m"><b>GAME WORLD</b><i>13 款放置游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
         </div>
     </div>
 
@@ -371,7 +398,7 @@
     <header class="hero">
         <div class="container">
             <div class="hero-tags">
-                <span class="tag">№ EST. 2024</span>
+                <span class="tag">EST. 2026</span>
                 <span class="tag">13 GAMES</span>
                 <span class="tag solid">100% FREE</span>
             </div>
@@ -386,15 +413,51 @@
         <div class="container">
             <div class="section-head">
                 <h2 class="section-title">全部游戏<span class="en">/ ALL GAMES</span></h2>
-                <span class="section-count">№ 01 — 13</span>
+                <span class="section-count">№ 01 — 16</span>
             </div>
 
             <ul class="game-grid">
 
-                <li class="game-card" style="--i:0; --c:#ccff00;">
-                    <a class="card" href="./patient-zero/">
+                <!-- ===== 原创（站长作品，外链，新标签打开） ===== -->
+                <li class="game-card" style="--i:0; --c:var(--gold);">
+                    <a class="card" href="https://zenidle.pages.dev/" target="_blank" rel="noopener noreferrer">
                         <div class="card-head">
                             <span class="card-num">01</span>
+                            <span class="card-icon" aria-hidden="true">🪷</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">功德放置</h3>
+                            <span class="card-en">ZEN IDLE</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--orig">原创</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:1; --c:var(--gold);">
+                    <a class="card" href="https://horseempire.pages.dev/" target="_blank" rel="noopener noreferrer">
+                        <div class="card-head">
+                            <span class="card-num">02</span>
+                            <span class="card-icon" aria-hidden="true">🐎</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">奉国牧马</h3>
+                            <span class="card-en">HORSE EMPIRE</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--orig">原创</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <!-- ===== 转载（本地部署，同标签打开） ===== -->
+                <li class="game-card" style="--i:2; --c:#ccff00;">
+                    <a class="card" href="./patient-zero/">
+                        <div class="card-head">
+                            <span class="card-num">03</span>
                             <span class="card-icon" aria-hidden="true">🦠</span>
                         </div>
                         <div class="card-body">
@@ -402,16 +465,16 @@
                             <span class="card-en">PATIENT ZERO</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">病毒放置</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:1; --c:#ff3e9d;">
+                <li class="game-card" style="--i:3; --c:#ff3e9d;">
                     <a class="card" href="./idle-gainz/">
                         <div class="card-head">
-                            <span class="card-num">02</span>
+                            <span class="card-num">04</span>
                             <span class="card-icon" aria-hidden="true">💪</span>
                         </div>
                         <div class="card-body">
@@ -419,16 +482,16 @@
                             <span class="card-en">IDLE GAINZ</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">健身放置</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:2; --c:#4d7cff;">
+                <li class="game-card" style="--i:4; --c:#4d7cff;">
                     <a class="card" href="./cat-zh/">
                         <div class="card-head">
-                            <span class="card-num">03</span>
+                            <span class="card-num">05</span>
                             <span class="card-icon" aria-hidden="true">🐱</span>
                         </div>
                         <div class="card-body">
@@ -436,16 +499,16 @@
                             <span class="card-en">CAT ZH</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">文明建设</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:3; --c:#ff6b35;">
+                <li class="game-card" style="--i:5; --c:#ff6b35;">
                     <a class="card" href="./wogley">
                         <div class="card-head">
-                            <span class="card-num">04</span>
+                            <span class="card-num">06</span>
                             <span class="card-icon" aria-hidden="true">⛏️</span>
                         </div>
                         <div class="card-body">
@@ -453,16 +516,16 @@
                             <span class="card-en">WOGLEY</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">矿业放置</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:4; --c:#ccff00;">
+                <li class="game-card" style="--i:6; --c:#ccff00;">
                     <a class="card" href="./evolve/">
                         <div class="card-head">
-                            <span class="card-num">05</span>
+                            <span class="card-num">07</span>
                             <span class="card-icon" aria-hidden="true">🧬</span>
                         </div>
                         <div class="card-body">
@@ -470,16 +533,16 @@
                             <span class="card-en">EVOLVE</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">文明进化</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:5; --c:#ff3e9d;">
+                <li class="game-card" style="--i:7; --c:#ff3e9d;">
                     <a class="card" href="./level-up/">
                         <div class="card-head">
-                            <span class="card-num">06</span>
+                            <span class="card-num">08</span>
                             <span class="card-icon" aria-hidden="true">⬆️</span>
                         </div>
                         <div class="card-body">
@@ -487,16 +550,16 @@
                             <span class="card-en">LEVEL UP</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">升级放置</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:6; --c:#4d7cff;">
+                <li class="game-card" style="--i:8; --c:#4d7cff;">
                     <a class="card" href="./network-simulator/">
                         <div class="card-head">
-                            <span class="card-num">07</span>
+                            <span class="card-num">09</span>
                             <span class="card-icon" aria-hidden="true">🌐</span>
                         </div>
                         <div class="card-body">
@@ -504,16 +567,16 @@
                             <span class="card-en">NETWORK SIM</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">模拟策略</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:7; --c:#ff6b35;">
+                <li class="game-card" style="--i:9; --c:#ff6b35;">
                     <a class="card" href="./factory-works-idle/">
                         <div class="card-head">
-                            <span class="card-num">08</span>
+                            <span class="card-num">10</span>
                             <span class="card-icon" aria-hidden="true">🏭</span>
                         </div>
                         <div class="card-body">
@@ -521,16 +584,16 @@
                             <span class="card-en">FACTORY WORKS</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">工厂放置</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:8; --c:#ccff00;">
+                <li class="game-card" style="--i:10; --c:#ccff00;">
                     <a class="card" href="./more-tiles/">
                         <div class="card-head">
-                            <span class="card-num">09</span>
+                            <span class="card-num">11</span>
                             <span class="card-icon" aria-hidden="true">🗺️</span>
                         </div>
                         <div class="card-body">
@@ -538,16 +601,16 @@
                             <span class="card-en">MORE TILES</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">领土策略</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <li class="game-card" style="--i:9; --c:#ff3e9d;">
+                <li class="game-card" style="--i:11; --c:#ff3e9d;">
                     <a class="card" href="./idlepunk/">
                         <div class="card-head">
-                            <span class="card-num">10</span>
+                            <span class="card-num">12</span>
                             <span class="card-icon" aria-hidden="true">🤖</span>
                         </div>
                         <div class="card-body">
@@ -555,17 +618,35 @@
                             <span class="card-en">IDLEPUNK</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">赛博朋克</span>
+                            <span class="badge badge--repro">转载</span>
                             <span class="card-cta">进入 →</span>
                         </div>
                     </a>
                 </li>
 
-                <!-- 以下三项为占位，无实际目标，以禁用样式区分，避免死链误导 -->
-                <li class="game-card is-soon" style="--i:10; --c:#b8b3a6;">
+                <!-- ===== 二次开发（基于他人作品的二次开发，外链，新标签打开） ===== -->
+                <li class="game-card" style="--i:12; --c:var(--fork);">
+                    <a class="card" href="https://piggy-island.pages.dev/" target="_blank" rel="noopener noreferrer">
+                        <div class="card-head">
+                            <span class="card-num">13</span>
+                            <span class="card-icon" aria-hidden="true">🐷</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">探索猪猪岛</h3>
+                            <span class="card-en">PIGGY ISLAND</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--fork">二次开发</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <!-- ===== 占位（无实际目标，禁用态） ===== -->
+                <li class="game-card is-soon" style="--i:13; --c:#b8b3a6;">
                     <div class="card" aria-disabled="true">
                         <div class="card-head">
-                            <span class="card-num">11</span>
+                            <span class="card-num">14</span>
                             <span class="card-icon" aria-hidden="true">➕</span>
                         </div>
                         <div class="card-body">
@@ -573,16 +654,16 @@
                             <span class="card-en">MORE GAMES</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">即将推出</span>
+                            <span class="badge badge--soon">即将推出</span>
                             <span class="card-cta">敬请期待</span>
                         </div>
                     </div>
                 </li>
 
-                <li class="game-card is-soon" style="--i:11; --c:#b8b3a6;">
+                <li class="game-card is-soon" style="--i:14; --c:#b8b3a6;">
                     <div class="card" aria-disabled="true">
                         <div class="card-head">
-                            <span class="card-num">12</span>
+                            <span class="card-num">15</span>
                             <span class="card-icon" aria-hidden="true">🚧</span>
                         </div>
                         <div class="card-body">
@@ -590,16 +671,16 @@
                             <span class="card-en">COMING SOON</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">筹备中</span>
+                            <span class="badge badge--soon">即将推出</span>
                             <span class="card-cta">敬请期待</span>
                         </div>
                     </div>
                 </li>
 
-                <li class="game-card is-soon" style="--i:12; --c:#b8b3a6;">
+                <li class="game-card is-soon" style="--i:15; --c:#b8b3a6;">
                     <div class="card" aria-disabled="true">
                         <div class="card-head">
-                            <span class="card-num">13</span>
+                            <span class="card-num">16</span>
                             <span class="card-icon" aria-hidden="true">🔒</span>
                         </div>
                         <div class="card-body">
@@ -607,7 +688,7 @@
                             <span class="card-en">STAY TUNED</span>
                         </div>
                         <div class="card-foot">
-                            <span class="card-genre">未公开</span>
+                            <span class="badge badge--soon">即将推出</span>
                             <span class="card-cta">敬请期待</span>
                         </div>
                     </div>
@@ -621,10 +702,56 @@
     <footer class="footer">
         <div class="container foot-grid">
             <span class="brand">© WANGSHEN</span>
-            <span class="mid">HAND-CRAFTED · 拒绝模板</span>
-            <span>GAME WORLD №01</span>
         </div>
     </footer>
+
+    <!-- ============================================================
+         走马灯脚本：requestAnimationFrame 驱动匀速左滚，无缝循环
+         · 不使用 CSS animation，避免被 prefers-reduced-motion 误禁用
+         · 鼠标悬停暂停；标签页隐藏时暂停（省电）；字体/窗口变化后重测宽度
+         ============================================================ -->
+    <script>
+        (function () {
+            var track = document.getElementById('marqueeTrack');
+            var box = document.getElementById('marquee');
+            if (!track || !box) return;
+
+            var pos = 0;        // 当前横向偏移（负值，向左）
+            var half = 0;       // 一份内容的宽度（两份复制，滚完一份即回卷，保证无缝）
+            var speed = 0.6;    // 每帧滚动像素（约 60fps → 36px/s，匀速）
+            var raf = null;
+
+            function measure() {
+                // track 包含两份相同内容，scrollWidth 为两份总宽
+                half = track.scrollWidth / 2;
+                if (!half || half < 1) half = track.scrollWidth || 1;
+            }
+            function tick() {
+                pos -= speed;
+                if (-pos >= half) pos += half; // 回卷：视觉上两份内容相同，无跳变
+                track.style.transform = 'translate3d(' + pos + 'px,0,0)';
+                raf = requestAnimationFrame(tick);
+            }
+            function start() { if (!raf) { measure(); raf = requestAnimationFrame(tick); } }
+            function stop()  { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+
+            // 交互：鼠标悬停暂停阅读
+            box.addEventListener('mouseenter', stop);
+            box.addEventListener('mouseleave', start);
+            // 窗口尺寸变化时重新测量
+            window.addEventListener('resize', measure);
+            // 标签页切到后台时暂停，回到前台时继续
+            document.addEventListener('visibilitychange', function () {
+                if (document.hidden) stop(); else start();
+            });
+            // 字体加载完成后内容宽度可能变化，重新测量一次
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(measure);
+            }
+
+            start();
+        })();
+    </script>
 
 </body>
 </html>
