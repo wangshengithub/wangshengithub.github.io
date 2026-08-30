@@ -68,15 +68,15 @@
 			<h2 class="left-block-title">标签</h2>
 			<div class="widget tagcloud" id="js-tagcloud">
 				
-					<a href="/tags/AI/" class="color1">AI<span class="tag-count">5</span></a>
+					<a href="/tags/%E7%AE%80%E4%BB%8B/" class="color1">简介<span class="tag-count">1</span></a>
 				
-					<a href="/tags/%E7%AE%80%E4%BB%8B/" class="color2">简介<span class="tag-count">1</span></a>
+					<a href="/tags/AI/" class="color2">AI<span class="tag-count">6</span></a>
 				
 					<a href="/tags/%E5%AF%BC%E8%88%AA/" class="color3">导航<span class="tag-count">4</span></a>
 				
-					<a href="/tags/%E6%B8%B8%E6%88%8F/" class="color4">游戏<span class="tag-count">2</span></a>
+					<a href="/tags/%E5%B7%A5%E5%85%B7/" class="color4">工具<span class="tag-count">2</span></a>
 				
-					<a href="/tags/%E5%B7%A5%E5%85%B7/" class="color5">工具<span class="tag-count">2</span></a>
+					<a href="/tags/%E6%B8%B8%E6%88%8F/" class="color5">游戏<span class="tag-count">2</span></a>
 				
 			</div>
 		</section>
@@ -175,6 +175,76 @@
 
       
       <div class="body-wrap">
+  
+    <article id="post-wsai-math-distill" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2026/08/29/wsai-math-distill/" class="article-date">
+  	<time datetime="2026-08-28T16:00:00.000Z" itemprop="datePublished">2026-08-29</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2026/08/29/wsai-math-distill/">
+        WSAI-Math-Distill：一个每条答案都严格验证过的数学蒸馏数据集
+        
+      </a>
+    </h1>
+  
+
+      </header>
+      
+    
+
+    
+
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>开源社区里的数学推理蒸馏数据集不少，规模动辄几万到几十万条。但我在调研时发现两个反复出现的问题：</p>
+<ol>
+<li><strong>答案没有逐条严格验证</strong>。部分数据集采用宽松的规范化匹配，格式不同、实质错误的回答也会被判为正确；</li>
+<li><strong>评测集污染</strong>。训练题与 AIME 等评测题同源重叠，训练后在榜单上的分数虚高，无法反映真实推理能力。</li>
+</ol>
+<p>这两个问题直接影响蒸馏出来的模型质量评估。于是我按「验证和去污染优先于规模」的思路，构建了 <strong>WSAI-Math-Distill</strong>——一个严格验证的数学长思维链蒸馏数据集。</p>
+      
+    </div>
+
+    
+
+    
+
+    
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li></ul>
+	</div>
+
+      
+
+      <div class="clearfix"></div>
+    </div>
+      
+        <p class="article-more-link">
+          <a  href="/2026/08/29/wsai-math-distill/#more">阅读全文 >></a>
+        </p>
+      
+    
+  </div>
+  
+</article>
+
   
     <article id="post-pixie" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -808,72 +878,6 @@
         <p class="article-more-link">
           <a  href="/2026/04/13/wsai-heart/#more">阅读全文 >></a>
         </p>
-      
-    
-  </div>
-  
-</article>
-
-  
-    <article id="post-game" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2025/02/11/game/" class="article-date">
-  	<time datetime="2025-02-10T16:00:00.000Z" itemprop="datePublished">2025-02-11</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2025/02/11/game/">
-        游戏导航
-        
-      </a>
-    </h1>
-  
-
-      </header>
-      
-    
-
-    
-
-    
-
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>想要体验精心挑选的好游戏？欢迎来到 <a href="/other/game/">游戏世界</a> 🎮！这里汇聚了十余款放置、增量、策略、模拟类网页游戏，原创、转载与二次开发作品一应俱全，点开即玩、无需登录。游戏虽有趣，也请记得劳逸结合、保护好视力哦 ✨ 祝你玩得开心！</p>
-<h2 id="加速访问"><a href="#加速访问" class="headerlink" title="加速访问"></a>加速访问</h2><p>国内访问较慢？可前往 Cloudflare 镜像站（与主站同步更新）：<a href="https://wangshenblog.pages.dev/other/game">点我进入</a></p>
-<h2 id="更新日志"><a href="#更新日志" class="headerlink" title="更新日志"></a>更新日志</h2><p>Upd 2026 07 28 🎉 <strong>全新「游戏世界」上线！</strong> 新增原创游戏「奉国牧马」、二次开发游戏「探索猪猪岛」，现共收录 13 款游戏。</p>
-<p>Upd 2026 02 06 上线<strong>原创</strong>游戏「功德放置」。</p>
-<p>Upd 2025 12 27 <strong>年末大更新</strong>，新增「网络模拟器」「工厂放置」「领土扩张」「朋克放置」四款游戏。</p>
-
-      
-    </div>
-
-    
-
-    
-
-    
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AF%BC%E8%88%AA/" rel="tag">导航</a></li></ul>
-	</div>
-
-      
-
-      <div class="clearfix"></div>
-    </div>
       
     
   </div>

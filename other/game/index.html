@@ -43,6 +43,7 @@
             --paper:   #ffffff;  /* 卡片底：纯白，与奶油形成层次 */
             --accent:  #ccff00;  /* 主撞色：荧光黄绿（悬停翻转色 / 原创徽标） */
             --gold:    #f5c518;  /* 原创游戏图标色：醒目金 */
+            --gold-deep: #b8860b; /* 荣耀卡深金：边框/阴影用，与黑边区分 */
             --fork:    #c77dff;  /* 二次开发图标色：紫 */
             --muted:   #6b665a;  /* 辅助灰：禁用态 */
             --border-w: 3px;     /* 统一粗边框宽度 */
@@ -209,6 +210,159 @@
             color: var(--accent);
         }
 
+        /* ============================================================
+         * 站长推荐 —— 榜单横条风
+         * 一个大粗边框盒，内部三行横条，行间黑实线分割；
+         * 大号 Anton 排名数字 + 荧光绿高亮，悬停整行翻荧光绿 + 内容反相
+         * ============================================================ */
+        .section-head--picks { margin-top: 68px; }
+
+        .rank-board {
+            list-style: none;
+            background: var(--paper);
+            border: var(--border-w) solid var(--ink);
+            box-shadow: var(--shadow);
+        }
+        .rank-row {
+            border-top: var(--border-w) solid var(--ink); /* 行间黑实线分割 */
+        }
+        .rank-row:first-child { border-top: none; }
+
+        .rank-row .link {
+            display: flex;
+    align-items: center;
+            gap: 22px;
+            padding: 18px 22px;
+            text-decoration: none;
+            color: inherit;
+            transition: background-color 0.1s steps(1);
+        }
+
+        /* 排名数字：Anton 超大号，荧光绿块打底 */
+        .rank-no {
+            font-family: var(--font-display);
+            font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+            line-height: 1;
+            letter-spacing: 0.02em;
+            min-width: 96px;
+            background: var(--accent);
+            border: var(--border-w) solid var(--ink);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            padding: 10px 8px;
+            flex-shrink: 0; /* 长标题挤压时保持数字块不变形 */
+        }
+
+        /* 图标块：沿用卡片图标样式，稍小一号 */
+        .rank-icon {
+            width: 54px;
+            height: 54px;
+            display: grid;
+            place-items: center;
+            font-size: 26px;
+            background: var(--c, var(--accent));
+            border: var(--border-w) solid var(--ink);
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+            transition: transform 0.16s ease, background-color 0.1s steps(1);
+        }
+
+        /* 标题组：中文名 + 英文副题，flex:1 把徽标/CTA 推到右侧 */
+        .rank-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+            min-width: 0; /* 允许长标题正常收缩换行，而不是把右侧内容挤出屏幕 */
+        }
+        .rank-title {
+            font-family: var(--font-cn);
+            font-weight: 900;
+            font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+            line-height: 1.15;
+        }
+        .rank-en {
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            opacity: 0.5;
+        }
+
+        .rank-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        /* 徽标/CTA 复用卡片同名样式，但行内更紧凑 */
+        .rank-right .badge { font-size: 0.68rem; }
+
+        /* ---------- 悬停：整行翻荧光绿 + 内容反相 ---------- */
+        .rank-row:hover .link { background: var(--accent); }
+        .rank-row:hover .rank-no,
+        .rank-row:hover .rank-icon { background: var(--ink); }
+        .rank-row:hover .rank-icon { transform: rotate(-6deg) scale(1.06); }
+        .rank-row:hover .rank-no { color: var(--accent); }
+        .rank-row:hover .badge { background: var(--ink); color: var(--accent); border-color: var(--ink); }
+        .rank-row:hover .card-cta { background: var(--ink); color: var(--accent); }
+
+        /* 响应式：窄屏改为两行布局——上行（排名块+图标+标题+徽标）、下行（CTA 右对齐），
+           避免长标题被挤压成竖排 */
+        @media (max-width: 600px) {
+            .rank-row .link {
+                flex-wrap: wrap;
+                gap: 12px;
+                padding: 14px;
+            }
+            .rank-no { min-width: 60px; font-size: 1.7rem; padding: 8px 4px; }
+            .rank-icon { width: 44px; height: 44px; font-size: 21px; }
+            .rank-en { display: none; }
+            /* 标题组占据剩余宽度，长标题自然横向换行 */
+            .rank-info { flex: 1 1 calc(100% - 190px); min-width: 130px; }
+            .rank-right { flex: 1 1 100%; justify-content: space-between; padding-top: 2px; }
+        }
+
+        /* 尊重「减少动态」偏好：禁用榜单悬停过渡 */
+        @media (prefers-reduced-motion: reduce) {
+            .rank-icon, .rank-row .link { transition: none !important; }
+        }
+
+        /* ---------- 获奖行（金色荣耀）：整行金色斜纹底 + 金色排名块 + 奖项字条，与荣耀卡呼应 ---------- */
+        .rank-row.is-award {
+            background: repeating-linear-gradient(45deg, #fdf6dd 0 12px, #f9edc4 12px 24px);
+        }
+        /* 悬停整行翻绿时，获奖行改翻金，保持荣耀辨识度 */
+        .rank-row.is-award:hover .link {
+            background: repeating-linear-gradient(45deg, #f5c518 0 12px, #eab80c 12px 24px);
+        }
+        .rank-row.is-award .rank-no {
+            background: var(--gold);
+            border-color: var(--gold-deep);
+            box-shadow: var(--shadow-sm);
+        }
+        .rank-award-note {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.64rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            padding: 1px 7px;
+            background: var(--gold);
+            color: var(--ink);
+            border: 2px solid var(--gold-deep);
+            white-space: nowrap;
+            align-self: flex-start;
+            margin-top: 2px;
+        }
+        .rank-row.is-award:hover .rank-no { background: var(--gold-deep); color: #fff; }
+        .rank-row.is-award:hover .rank-award-note { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+        .rank-row.is-award:hover .badge { background: var(--gold-deep); color: #fff; border-color: var(--gold-deep); }
+        .rank-row.is-award:hover .card-cta { background: var(--gold-deep); color: #fff; }
+        /* 移动端两行布局下，字条并入右侧徽标行 */
+        @media (max-width: 600px) {
+            .rank-award-note { margin-top: 0; }
+        }
+
         /* ---------- 卡片网格 ---------- */
         .game-grid {
             list-style: none;
@@ -349,6 +503,40 @@
         .game-card.is-soon:hover .badge { background: var(--muted); color: #fff; border-color: var(--muted); }
 
         /* ============================================================
+         * 金色荣耀卡（获奖作品特殊样式）
+         * 金色边框 + 金色硬阴影 + 淡金斜纹底 + 顶部🏆角标 + 奖项字条
+         * 悬停：整卡翻金（而非荧光绿），保持荣耀辨识度
+         * ============================================================ */
+        .game-card.is-award {
+            background: repeating-linear-gradient(45deg, #fdf6dd 0 12px, #f9edc4 12px 24px);
+            border-color: var(--gold-deep);
+            box-shadow: 8px 8px 0 var(--gold-deep);
+        }
+        /* 奖项字条：标题下方一行金底黑字小字条 */
+        .card-award-note {
+            display: inline-block;
+            align-self: flex-start;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            padding: 2px 8px;
+            background: var(--gold);
+            color: var(--ink);
+            border: 2px solid var(--gold-deep);
+            white-space: nowrap;
+        }
+        /* 悬停：整卡翻金 + 阴影加深，角标同步加深 */
+        .game-card.is-award:hover {
+            background: repeating-linear-gradient(45deg, #f5c518 0 12px, #eab80c 12px 24px);
+            box-shadow: 12px 12px 0 var(--gold-deep);
+        }
+        .game-card.is-award:hover .card-icon { background: var(--gold-deep); }
+        .game-card.is-award:hover .badge { background: var(--gold-deep); color: #fff; border-color: var(--gold-deep); }
+        .game-card.is-award:hover .card-cta { background: var(--gold-deep); color: #fff; }
+        .game-card.is-award:hover .card-award-note { background: var(--ink); color: var(--gold); border-color: var(--ink); }
+
+        /* ============================================================
          * 页脚（仅保留版权）
          * ============================================================ */
         .footer {
@@ -389,8 +577,8 @@
     <!-- 顶部走马灯（JS 驱动滚动；内容复制两份用于无缝循环） -->
     <div class="marquee" id="marquee" aria-hidden="true">
         <div class="marquee-track" id="marqueeTrack">
-            <span class="m"><b>GAME WORLD</b><i>13 款放置游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
-            <span class="m"><b>GAME WORLD</b><i>13 款放置游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
+            <span class="m"><b>GAME WORLD</b><i>15 款放置游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
+            <span class="m"><b>GAME WORLD</b><i>15 款放置游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
         </div>
     </div>
 
@@ -399,7 +587,7 @@
         <div class="container">
             <div class="hero-tags">
                 <span class="tag">EST. 2026</span>
-                <span class="tag">13 GAMES</span>
+                <span class="tag">15 GAMES</span>
                 <span class="tag solid">100% FREE</span>
             </div>
             <h1 class="hero-title">游戏<span class="hl">世界</span></h1>
@@ -413,7 +601,7 @@
         <div class="container">
             <div class="section-head">
                 <h2 class="section-title">全部游戏<span class="en">/ ALL GAMES</span></h2>
-                <span class="section-count">№ 01 — 16</span>
+                <span class="section-count">№ 01 — 18</span>
             </div>
 
             <ul class="game-grid">
@@ -453,182 +641,11 @@
                     </a>
                 </li>
 
-                <!-- ===== 转载（本地部署，同标签打开） ===== -->
-                <li class="game-card" style="--i:2; --c:#ccff00;">
-                    <a class="card" href="./patient-zero/">
-                        <div class="card-head">
-                            <span class="card-num">03</span>
-                            <span class="card-icon" aria-hidden="true">🦠</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">零号病人</h3>
-                            <span class="card-en">PATIENT ZERO</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:3; --c:#ff3e9d;">
-                    <a class="card" href="./idle-gainz/">
-                        <div class="card-head">
-                            <span class="card-num">04</span>
-                            <span class="card-icon" aria-hidden="true">💪</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">健身放置</h3>
-                            <span class="card-en">IDLE GAINZ</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:4; --c:#4d7cff;">
-                    <a class="card" href="./cat-zh/">
-                        <div class="card-head">
-                            <span class="card-num">05</span>
-                            <span class="card-icon" aria-hidden="true">🐱</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">猫国建设者</h3>
-                            <span class="card-en">CAT ZH</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:5; --c:#ff6b35;">
-                    <a class="card" href="./wogley">
-                        <div class="card-head">
-                            <span class="card-num">06</span>
-                            <span class="card-icon" aria-hidden="true">⛏️</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">当矿工</h3>
-                            <span class="card-en">WOGLEY</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:6; --c:#ccff00;">
-                    <a class="card" href="./evolve/">
-                        <div class="card-head">
-                            <span class="card-num">07</span>
-                            <span class="card-icon" aria-hidden="true">🧬</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">进化</h3>
-                            <span class="card-en">EVOLVE</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:7; --c:#ff3e9d;">
-                    <a class="card" href="./level-up/">
-                        <div class="card-head">
-                            <span class="card-num">08</span>
-                            <span class="card-icon" aria-hidden="true">⬆️</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">升级!升级!</h3>
-                            <span class="card-en">LEVEL UP</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:8; --c:#4d7cff;">
-                    <a class="card" href="./network-simulator/">
-                        <div class="card-head">
-                            <span class="card-num">09</span>
-                            <span class="card-icon" aria-hidden="true">🌐</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">网络模拟器</h3>
-                            <span class="card-en">NETWORK SIM</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:9; --c:#ff6b35;">
-                    <a class="card" href="./factory-works-idle/">
-                        <div class="card-head">
-                            <span class="card-num">10</span>
-                            <span class="card-icon" aria-hidden="true">🏭</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">工厂放置</h3>
-                            <span class="card-en">FACTORY WORKS</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:10; --c:#ccff00;">
-                    <a class="card" href="./more-tiles/">
-                        <div class="card-head">
-                            <span class="card-num">11</span>
-                            <span class="card-icon" aria-hidden="true">🗺️</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">领土扩张</h3>
-                            <span class="card-en">MORE TILES</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <li class="game-card" style="--i:11; --c:#ff3e9d;">
-                    <a class="card" href="./idlepunk/">
-                        <div class="card-head">
-                            <span class="card-num">12</span>
-                            <span class="card-icon" aria-hidden="true">🤖</span>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="card-title">朋克放置</h3>
-                            <span class="card-en">IDLEPUNK</span>
-                        </div>
-                        <div class="card-foot">
-                            <span class="badge badge--repro">转载</span>
-                            <span class="card-cta">进入 →</span>
-                        </div>
-                    </a>
-                </li>
-
-                <!-- ===== 二次开发（基于他人作品的二次开发，外链，新标签打开） ===== -->
-                <li class="game-card" style="--i:12; --c:var(--fork);">
+                <!-- ===== 二次开发（基于他人作品的二次开发） ===== -->
+                <li class="game-card" style="--i:2; --c:var(--fork);">
                     <a class="card" href="https://piggy-island.pages.dev/" target="_blank" rel="noopener noreferrer">
                         <div class="card-head">
-                            <span class="card-num">13</span>
+                            <span class="card-num">03</span>
                             <span class="card-icon" aria-hidden="true">🐷</span>
                         </div>
                         <div class="card-body">
@@ -642,11 +659,217 @@
                     </a>
                 </li>
 
-                <!-- ===== 占位（无实际目标，禁用态） ===== -->
-                <li class="game-card is-soon" style="--i:13; --c:#b8b3a6;">
-                    <div class="card" aria-disabled="true">
+                <li class="game-card is-award" style="--i:3; --c:var(--gold);">
+                    <a class="card" href="./captain-callisto/">
+                        <div class="card-head">
+                            <span class="card-num">04</span>
+                            <span class="card-icon" aria-hidden="true">🚀</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">卡利斯托船长的星际冒险</h3>
+                            <span class="card-en">CAPTAIN CALLISTO</span>
+                        </div>
+                        <span class="card-award-note">🏆 原作获 JS13K 大奖</span>
+                        <div class="card-foot">
+                            <span class="badge badge--fork">二次开发</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:4; --c:var(--fork);">
+                    <a class="card" href="./poolrooms/">
+                        <div class="card-head">
+                            <span class="card-num">05</span>
+                            <span class="card-icon" aria-hidden="true">🏊</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">泳池后室</h3>
+                            <span class="card-en">POOLROOMS</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--fork">二次开发</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <!-- ===== 转载（本地部署，同标签打开） ===== -->
+                <li class="game-card" style="--i:5; --c:#ccff00;">
+                    <a class="card" href="./patient-zero/">
+                        <div class="card-head">
+                            <span class="card-num">06</span>
+                            <span class="card-icon" aria-hidden="true">🦠</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">零号病人</h3>
+                            <span class="card-en">PATIENT ZERO</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:6; --c:#ff3e9d;">
+                    <a class="card" href="./idle-gainz/">
+                        <div class="card-head">
+                            <span class="card-num">07</span>
+                            <span class="card-icon" aria-hidden="true">💪</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">健身放置</h3>
+                            <span class="card-en">IDLE GAINZ</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:7; --c:#4d7cff;">
+                    <a class="card" href="./cat-zh/">
+                        <div class="card-head">
+                            <span class="card-num">08</span>
+                            <span class="card-icon" aria-hidden="true">🐱</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">猫国建设者</h3>
+                            <span class="card-en">CAT ZH</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:8; --c:#ff6b35;">
+                    <a class="card" href="./wogley">
+                        <div class="card-head">
+                            <span class="card-num">09</span>
+                            <span class="card-icon" aria-hidden="true">⛏️</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">当矿工</h3>
+                            <span class="card-en">WOGLEY</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:9; --c:#ccff00;">
+                    <a class="card" href="./evolve/">
+                        <div class="card-head">
+                            <span class="card-num">10</span>
+                            <span class="card-icon" aria-hidden="true">🧬</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">进化</h3>
+                            <span class="card-en">EVOLVE</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:10; --c:#ff3e9d;">
+                    <a class="card" href="./level-up/">
+                        <div class="card-head">
+                            <span class="card-num">11</span>
+                            <span class="card-icon" aria-hidden="true">⬆️</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">升级!升级!</h3>
+                            <span class="card-en">LEVEL UP</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:11; --c:#4d7cff;">
+                    <a class="card" href="./network-simulator/">
+                        <div class="card-head">
+                            <span class="card-num">12</span>
+                            <span class="card-icon" aria-hidden="true">🌐</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">网络模拟器</h3>
+                            <span class="card-en">NETWORK SIM</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:12; --c:#ff6b35;">
+                    <a class="card" href="./factory-works-idle/">
+                        <div class="card-head">
+                            <span class="card-num">13</span>
+                            <span class="card-icon" aria-hidden="true">🏭</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">工厂放置</h3>
+                            <span class="card-en">FACTORY WORKS</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:13; --c:#ccff00;">
+                    <a class="card" href="./more-tiles/">
                         <div class="card-head">
                             <span class="card-num">14</span>
+                            <span class="card-icon" aria-hidden="true">🗺️</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">领土扩张</h3>
+                            <span class="card-en">MORE TILES</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <li class="game-card" style="--i:14; --c:#ff3e9d;">
+                    <a class="card" href="./idlepunk/">
+                        <div class="card-head">
+                            <span class="card-num">15</span>
+                            <span class="card-icon" aria-hidden="true">🤖</span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">朋克放置</h3>
+                            <span class="card-en">IDLEPUNK</span>
+                        </div>
+                        <div class="card-foot">
+                            <span class="badge badge--repro">转载</span>
+                            <span class="card-cta">进入 →</span>
+                        </div>
+                    </a>
+                </li>
+
+                <!-- ===== 占位（无实际目标，禁用态） ===== -->
+                <li class="game-card is-soon" style="--i:15; --c:#b8b3a6;">
+                    <div class="card" aria-disabled="true">
+                        <div class="card-head">
+                            <span class="card-num">16</span>
                             <span class="card-icon" aria-hidden="true">➕</span>
                         </div>
                         <div class="card-body">
@@ -660,10 +883,10 @@
                     </div>
                 </li>
 
-                <li class="game-card is-soon" style="--i:14; --c:#b8b3a6;">
+                <li class="game-card is-soon" style="--i:16; --c:#b8b3a6;">
                     <div class="card" aria-disabled="true">
                         <div class="card-head">
-                            <span class="card-num">15</span>
+                            <span class="card-num">17</span>
                             <span class="card-icon" aria-hidden="true">🚧</span>
                         </div>
                         <div class="card-body">
@@ -677,10 +900,10 @@
                     </div>
                 </li>
 
-                <li class="game-card is-soon" style="--i:15; --c:#b8b3a6;">
+                <li class="game-card is-soon" style="--i:17; --c:#b8b3a6;">
                     <div class="card" aria-disabled="true">
                         <div class="card-head">
-                            <span class="card-num">16</span>
+                            <span class="card-num">18</span>
                             <span class="card-icon" aria-hidden="true">🔒</span>
                         </div>
                         <div class="card-body">
@@ -692,6 +915,64 @@
                             <span class="card-cta">敬请期待</span>
                         </div>
                     </div>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- 站长推荐 -->
+        <div class="container">
+            <div class="section-head section-head--picks">
+                <h2 class="section-title">站长推荐<span class="en">/ TOP PICKS</span></h2>
+                <span class="section-count">★ 03</span>
+            </div>
+
+            <ul class="rank-board">
+
+                <li class="rank-row" style="--c:var(--gold);">
+                    <a class="link" href="https://zenidle.pages.dev/" target="_blank" rel="noopener noreferrer">
+                        <span class="rank-no">№1</span>
+                        <span class="rank-icon" aria-hidden="true">🪷</span>
+                        <span class="rank-info">
+                            <span class="rank-title">功德放置</span>
+                            <span class="rank-en">ZEN IDLE</span>
+                        </span>
+                        <span class="rank-right">
+                            <span class="badge badge--orig">原创</span>
+                            <span class="card-cta">进入 →</span>
+                        </span>
+                    </a>
+                </li>
+
+                <li class="rank-row is-award" style="--c:var(--gold);">
+                    <a class="link" href="./captain-callisto/">
+                        <span class="rank-no">№2</span>
+                        <span class="rank-icon" aria-hidden="true">🚀</span>
+                        <span class="rank-info">
+                            <span class="rank-title">卡利斯托船长的星际冒险</span>
+                            <span class="rank-en">CAPTAIN CALLISTO</span>
+                            <span class="rank-award-note">🏆 原作获 JS13K 大奖</span>
+                        </span>
+                        <span class="rank-right">
+                            <span class="badge badge--fork">二次开发</span>
+                            <span class="card-cta">进入 →</span>
+                        </span>
+                    </a>
+                </li>
+
+                <li class="rank-row" style="--c:var(--fork);">
+                    <a class="link" href="https://piggy-island.pages.dev/" target="_blank" rel="noopener noreferrer">
+                        <span class="rank-no">№3</span>
+                        <span class="rank-icon" aria-hidden="true">🐷</span>
+                        <span class="rank-info">
+                            <span class="rank-title">探索猪猪岛</span>
+                            <span class="rank-en">PIGGY ISLAND</span>
+                        </span>
+                        <span class="rank-right">
+                            <span class="badge badge--fork">二次开发</span>
+                            <span class="card-cta">进入 →</span>
+                        </span>
+                    </a>
                 </li>
 
             </ul>
