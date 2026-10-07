@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>游戏世界 · GAME WORLD | 放置游戏档案室</title>
-    <meta name="description" content="收录十余款可离线畅玩的放置、增量、策略网页游戏，点开即玩，无需登录、没有广告。">
+    <title>游戏世界 · GAME WORLD | 单机游戏档案室</title>
+    <meta name="description" content="收录十余款可离线畅玩的单机网页游戏，点开即玩，无需登录、没有广告。">
 
     <style>
         /* ============================================================
@@ -439,6 +439,20 @@
             opacity: 0.5;
         }
 
+        /* 类型标签：放置 / 武侠 / 模拟 ……，标注在游戏名下方，与来源徽标（原创/转载/二次开发）互补 */
+        .card-tag {
+            align-self: flex-start;
+            font-family: var(--font-cn);
+            font-size: 0.75rem;
+            font-weight: 700;
+            line-height: 1;
+            padding: 3px 8px;
+            margin-top: 4px;
+            background: var(--paper);
+            border: 2px solid var(--ink);
+            white-space: nowrap;
+        }
+
         .card-foot {
             display: flex;
             justify-content: space-between;
@@ -577,8 +591,8 @@
     <!-- 顶部走马灯（JS 驱动滚动；内容复制两份用于无缝循环） -->
     <div class="marquee" id="marquee" aria-hidden="true">
         <div class="marquee-track" id="marqueeTrack">
-            <span class="m"><b>GAME WORLD</b><i>18 款放置游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
-            <span class="m"><b>GAME WORLD</b><i>18 款放置游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
+            <span class="m"><b>GAME WORLD</b><i>18 款单机游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
+            <span class="m"><b>GAME WORLD</b><i>18 款单机游戏</i><b>原创 · 转载 · 二次开发</b><i>点开即玩</i><b>无需登录</b><span class="star">★</span></span>
         </div>
     </div>
 
@@ -616,6 +630,7 @@
                         <div class="card-body">
                             <h3 class="card-title">功德放置</h3>
                             <span class="card-en">ZEN IDLE</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--orig">原创</span>
@@ -633,6 +648,7 @@
                         <div class="card-body">
                             <h3 class="card-title">奉国牧马</h3>
                             <span class="card-en">HORSE EMPIRE</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--orig">原创</span>
@@ -650,6 +666,7 @@
                         <div class="card-body">
                             <h3 class="card-title">风铃谷的四季</h3>
                             <span class="card-en">CHIME VALLEY</span>
+                            <span class="card-tag">冒险</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--orig">原创</span>
@@ -668,6 +685,7 @@
                         <div class="card-body">
                             <h3 class="card-title">探索猪猪岛</h3>
                             <span class="card-en">PIGGY ISLAND</span>
+                            <span class="card-tag">冒险</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--fork">二次开发</span>
@@ -685,6 +703,7 @@
                         <div class="card-body">
                             <h3 class="card-title">卡利斯托船长的星际冒险</h3>
                             <span class="card-en">CAPTAIN CALLISTO</span>
+                            <span class="card-tag">冒险</span>
                         </div>
                         <span class="card-award-note">🏆 原作获 JS13K 大奖</span>
                         <div class="card-foot">
@@ -695,14 +714,15 @@
                 </li>
 
                 <li class="game-card" style="--i:5; --c:var(--fork);">
-                    <a class="card" href="./poolrooms/">
+                    <a class="card" href="./long-wind/">
                         <div class="card-head">
                             <span class="card-num">06</span>
-                            <span class="card-icon" aria-hidden="true">🏊</span>
+                            <span class="card-icon" aria-hidden="true">🗡️</span>
                         </div>
                         <div class="card-body">
-                            <h3 class="card-title">泳池后室</h3>
-                            <span class="card-en">POOLROOMS</span>
+                            <h3 class="card-title">长风</h3>
+                            <span class="card-en">LONG WIND</span>
+                            <span class="card-tag">武侠</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--fork">二次开发</span>
@@ -720,6 +740,7 @@
                         <div class="card-body">
                             <h3 class="card-title">大狗叫</h3>
                             <span class="card-en">DAGOU TAP</span>
+                            <span class="card-tag">休闲</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--fork">二次开发</span>
@@ -737,6 +758,7 @@
                         <div class="card-body">
                             <h3 class="card-title">牛来过河</h3>
                             <span class="card-en">NIU CROSSING</span>
+                            <span class="card-tag">休闲</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--fork">二次开发</span>
@@ -755,6 +777,7 @@
                         <div class="card-body">
                             <h3 class="card-title">零号病人</h3>
                             <span class="card-en">PATIENT ZERO</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -772,6 +795,7 @@
                         <div class="card-body">
                             <h3 class="card-title">健身放置</h3>
                             <span class="card-en">IDLE GAINZ</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -789,6 +813,7 @@
                         <div class="card-body">
                             <h3 class="card-title">猫国建设者</h3>
                             <span class="card-en">CAT ZH</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -806,6 +831,7 @@
                         <div class="card-body">
                             <h3 class="card-title">当矿工</h3>
                             <span class="card-en">WOGLEY</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -823,6 +849,7 @@
                         <div class="card-body">
                             <h3 class="card-title">进化</h3>
                             <span class="card-en">EVOLVE</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -840,6 +867,7 @@
                         <div class="card-body">
                             <h3 class="card-title">升级!升级!</h3>
                             <span class="card-en">LEVEL UP</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -857,6 +885,7 @@
                         <div class="card-body">
                             <h3 class="card-title">网络模拟器</h3>
                             <span class="card-en">NETWORK SIM</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -874,6 +903,7 @@
                         <div class="card-body">
                             <h3 class="card-title">工厂放置</h3>
                             <span class="card-en">FACTORY WORKS</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -891,6 +921,7 @@
                         <div class="card-body">
                             <h3 class="card-title">领土扩张</h3>
                             <span class="card-en">MORE TILES</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
@@ -908,6 +939,7 @@
                         <div class="card-body">
                             <h3 class="card-title">朋克放置</h3>
                             <span class="card-en">IDLEPUNK</span>
+                            <span class="card-tag">放置</span>
                         </div>
                         <div class="card-foot">
                             <span class="badge badge--repro">转载</span>
