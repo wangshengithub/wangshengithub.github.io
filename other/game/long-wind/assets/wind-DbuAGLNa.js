@@ -1,1 +1,0 @@
-import{i as e}from"./wind-BKJvbr9K.js";export{e as setWindStrength};

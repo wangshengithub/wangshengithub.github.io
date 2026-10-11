@@ -1,1 +1,0 @@
-import{n as e,r as t,t as n}from"./props-pavilion-bXyPWd9T.js";export{n as PAVILION,e as buildPavilion,t as createPavilionMaterials};

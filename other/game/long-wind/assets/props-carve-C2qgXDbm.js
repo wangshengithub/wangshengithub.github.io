@@ -1,1 +1,0 @@
-import{n as e,t}from"./props-carve-Cgpv2rJj.js";export{t as REGIONS,e as buildCarveAtlas};

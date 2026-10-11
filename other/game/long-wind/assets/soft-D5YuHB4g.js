@@ -1,1 +1,0 @@
-import{t as e}from"./soft-C8zbifuU.js";export{e as createSoft};
